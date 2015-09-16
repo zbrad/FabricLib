@@ -10,7 +10,7 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Web;
 
-namespace ZBrad.ServiceFabric.Wcf
+namespace ZBrad.FabLibs.Wcf
 {
     public class RestClient<T> where T : class, new()
     {

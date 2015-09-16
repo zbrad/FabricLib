@@ -7,7 +7,7 @@
     <ProjectGuid>{6411E1B0-4BBB-4233-90F8-833E8DA6A126}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ZBrad.ServiceFabric.Wcf</RootNamespace>
+    <RootNamespace>ZBrad.FabLibs.Wcf</RootNamespace>
     <AssemblyName>WcfListeners</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -69,7 +69,7 @@
     <Compile Include="Gateway\GatewayHost.cs" />
     <Compile Include="Gateway\Filter.cs" />
     <Compile Include="Common\IEventLog.cs" />
-    <Compile Include="Common\GatewayListener.cs" />
+    <Compile Include="Gateway\GatewayListener.cs" />
     <Compile Include="Gateway\Resolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common\TcpListener.cs" />
@@ -89,6 +89,9 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>"$(SolutionDir).nuget\nuget" pack "$(ProjectDir)$(ProjectName).nuspec" -verbosity detailed -OutputDirectory "$(TargetDir)." -BasePath "$(TargetDir)."</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

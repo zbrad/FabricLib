@@ -5,9 +5,8 @@ using System.Globalization;
 using Microsoft.ServiceFabric.Services;
 using System.Threading.Tasks;
 using System.Threading;
-using ZBrad.ServiceFabric.WcfLib.Gateway;
 
-namespace ZBrad.ServiceFabric.WcfLib
+namespace ZBrad.FabLibs.Wcf.Gateway
 {
     /// <summary>
     /// A Service Fabric Gateway for Wcf

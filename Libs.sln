@@ -9,8 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfListeners", "WcfListener
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C0CAC32C-8A37-44AF-B751-AFF14D32889D}"
 	ProjectSection(SolutionItems) = preProject
-		NuGet\NuGet.config = NuGet\NuGet.config
-		NuGet\packages.config = NuGet\packages.config
+		.nuget\nuget.exe = .nuget\nuget.exe
 	EndProjectSection
 EndProject
 Global

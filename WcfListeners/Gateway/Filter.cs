@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System;
 using System.Text;
 
-namespace ZBrad.ServiceFabric.WcfLib.Gateway
+namespace ZBrad.FabLibs.Wcf.Gateway
 {
     /// <summary>
     /// A custom MessageFilter class with matches based on EndpointAddress

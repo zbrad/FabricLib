@@ -3,7 +3,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 
-namespace ZBrad.ServiceFabric.Wcf
+namespace ZBrad.FabLibs.Wcf
 {
     public class TcpClient<T> where T : class, new()
     {

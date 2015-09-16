@@ -10,7 +10,7 @@ using System.ServiceModel.Routing;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZBrad.ServiceFabric.WcfLib.Gateway
+namespace ZBrad.FabLibs.Wcf.Gateway
 {
     // This class implements the IEndpointBehavior and IDispatchMessageInspector interfaces.
     // The IEndpointBehavior hooks up the message inspector to the service EndpointDispatcher.

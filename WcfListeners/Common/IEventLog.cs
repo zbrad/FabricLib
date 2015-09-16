@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZBrad.ServiceFabric.WcfLib
+namespace ZBrad.FabLibs.Wcf
 {
     public interface IEventLog
     {

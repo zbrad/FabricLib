@@ -6,7 +6,7 @@ using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Routing;
 using System.Collections.Generic;
 
-namespace ZBrad.ServiceFabric.WcfLib.Gateway
+namespace ZBrad.FabLibs.Wcf.Gateway
 {
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single,
         ConcurrencyMode = ConcurrencyMode.Multiple,

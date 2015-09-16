@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services;
-using ZBrad.ServiceFabric.WcfLib.Service;
+using ZBrad.FabLibs.Wcf.Service;
 
-namespace ZBrad.ServiceFabric.WcfLib
+namespace ZBrad.FabLibs.Wcf
 {
     public class RestListener<T> : ICommunicationListener, ILibListener where T : class, new()
     {

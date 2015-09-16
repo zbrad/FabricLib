@@ -1,18 +1,31 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
+    <id>ZBrad.FabLib.WcfListeners</id>
     <version>1.0.0-preview1</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
+    <title>ZBrad's Wcf Listeners for Microsoft Service Fabric</title>
+    <authors>zbrad</authors>
+    <owners>zbrad</owners>
     <licenseUrl>https://github.com/zbrad/FabLibs/LICENSE</licenseUrl>
     <projectUrl>https://github.com/zbrad/FabLibs</projectUrl>
     <iconUrl>https://github.com/zbrad/FabLibs/FabLibs.ico</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <summary>
+      ZBrad's Wcf Listeners for Microsoft Service Fabric
+    </summary>
+    <description>
+      Provides a WCF gateway listener/router, and a service listener.
+    </description>
     <releaseNotes></releaseNotes>
-    <copyright>$copyright$</copyright>
-    <tags>ServiceFabric Wcf</tags>
+    <copyright>Brad Merrill 2015</copyright>
+    <tags>ServiceFabric WCF</tags>
+    <dependencies>
+      <dependency id="Microsoft.ServiceFabric" version="4.0.1427-preview1" />
+      <dependency id="Microsoft.ServiceFabric.Data" version="1.0.328-preview1" />
+      <dependency id="Microsoft.ServiceFabric.Services" version="1.0.328-preview1" />
+    </dependencies>
   </metadata>
+  <files>
+    <file src="*.dll" target="lib\net45" />
+  </files>
 </package>

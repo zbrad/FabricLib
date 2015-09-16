@@ -3,7 +3,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 
-namespace ZBrad.ServiceFabric.Wcf
+namespace ZBrad.FabLibs.Wcf
 {
     /// <summary>
     /// specifies partition to by used by client

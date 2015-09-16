@@ -4,7 +4,7 @@ using Smc = System.ServiceModel.Channels;
 using Smd = System.ServiceModel.Description;
 using System.Collections.Generic;
 
-namespace ZBrad.ServiceFabric.WcfLib.Service
+namespace ZBrad.FabLibs.Wcf.Service
 {
     [Sm.ServiceBehavior(InstanceContextMode = Sm.InstanceContextMode.Single,
         ConcurrencyMode = Sm.ConcurrencyMode.Multiple,

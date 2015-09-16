@@ -7,7 +7,7 @@ using Microsoft.ServiceFabric.Services;
 using System.Fabric;
 using System.Fabric.Description;
 
-namespace ZBrad.ServiceFabric.WcfLib
+namespace ZBrad.FabLibs.Wcf
 {
     internal interface ILibListener
     {
