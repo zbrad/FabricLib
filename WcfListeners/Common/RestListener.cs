@@ -17,11 +17,10 @@ namespace ZBrad.FabLibs.Wcf
         public T Instance { get; private set; }
         public ServiceInitializationParameters Init { get; private set; }
         public int Port { get; private set; }
-        public IEventLog Log { get; private set; }
+        static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
 
-        public RestListener(IEventLog log)
+        public RestListener()
         {
-            this.Log = log;
             this.Instance = new T();
         }
 
@@ -34,7 +33,7 @@ namespace ZBrad.FabLibs.Wcf
 
         Task<string> ICommunicationListener.OpenAsync(CancellationToken cancellationToken)
         {
-            Log.Info("Starting {0} listening on {1}", Init.ServiceName, this.host.UriPath);
+            log.Info("Starting {0} listening on {1}", Init.ServiceName, this.host.UriPath);
             this.host.StartListening();
             return Task.FromResult<string>(this.host.UriPath);
         }
@@ -55,11 +54,11 @@ namespace ZBrad.FabLibs.Wcf
             this.Port = Util.GetPort(this, "Service");
             if (this.Port <= 0)
             {
-                Log.Error("?Unable to get port number");
+                log.Error("?Unable to get port number");
                 throw new ApplicationException("unable to get port number");
             }
 
-            Log.Info("Service port: {0}", this.Port);
+            log.Info("Service port: {0}", this.Port);
         }
     }
 }

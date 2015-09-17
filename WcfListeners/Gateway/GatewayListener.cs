@@ -17,15 +17,14 @@ namespace ZBrad.FabLibs.Wcf.Gateway
         public ServiceInitializationParameters Init { get; private set; }
 
         public int Port { get; private set; }
-        public IEventLog Log { get; private set; }
+        static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// create a Wcf gateway listener
         /// </summary>
         /// <param name="log"></param>
-        public GatewayListener(IEventLog log)
+        public GatewayListener()
         {
-            this.Log = log;
         }
 
         void ICommunicationListener.Initialize(ServiceInitializationParameters init)
@@ -37,7 +36,7 @@ namespace ZBrad.FabLibs.Wcf.Gateway
 
         Task<string> ICommunicationListener.OpenAsync(CancellationToken cancellationToken)
         {
-            Log.Info("Starting {0} listening on {1}", Init.ServiceName, this.gateway.Address);
+            log.Info("Starting {0} listening on {1}", Init.ServiceName, this.gateway.Address);
             this.gateway.StartListening();
             return Task.FromResult<string>(this.gateway.Address);
         }
@@ -58,11 +57,11 @@ namespace ZBrad.FabLibs.Wcf.Gateway
             this.Port = Util.GetPort(this, "Gateway");
             if (this.Port <= 0)
             {
-                Log.Error("?Unable to get port number");
+                log.Error("?Unable to get port number");
                 throw new ApplicationException("unable to get port number");
             }
 
-            Log.Info("Gateway port: {0}", this.Port);
+            log.Info("Gateway port: {0}", this.Port);
         }
     }
 }

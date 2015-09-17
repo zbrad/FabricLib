@@ -29,7 +29,6 @@ namespace ZBrad.FabLibs.Wcf.Gateway
         public RoutingConfiguration Configuration { get; private set; }
 
         RoutingBehavior behavior = null;
-        public IEventLog Log { get { return listener.Log; } }
 
         public GatewayHost(GatewayListener listener)
         {

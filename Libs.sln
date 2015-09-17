@@ -12,6 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C0CAC3
 		.nuget\nuget.exe = .nuget\nuget.exe
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilitiesx64", "Utilitiesx64\Utilitiesx64.csproj", "{C6874224-3883-4AC9-923C-14BCF39E087A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{24A2F050-FB38-4BC6-8D88-D46A25C27951}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +38,20 @@ Global
 		{6411E1B0-4BBB-4233-90F8-833E8DA6A126}.Release|Any CPU.ActiveCfg = Release|x64
 		{6411E1B0-4BBB-4233-90F8-833E8DA6A126}.Release|x64.ActiveCfg = Release|x64
 		{6411E1B0-4BBB-4233-90F8-833E8DA6A126}.Release|x64.Build.0 = Release|x64
+		{C6874224-3883-4AC9-923C-14BCF39E087A}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{C6874224-3883-4AC9-923C-14BCF39E087A}.Debug|x64.ActiveCfg = Debug|x64
+		{C6874224-3883-4AC9-923C-14BCF39E087A}.Debug|x64.Build.0 = Debug|x64
+		{C6874224-3883-4AC9-923C-14BCF39E087A}.Release|Any CPU.ActiveCfg = Release|x64
+		{C6874224-3883-4AC9-923C-14BCF39E087A}.Release|x64.ActiveCfg = Release|x64
+		{C6874224-3883-4AC9-923C-14BCF39E087A}.Release|x64.Build.0 = Release|x64
+		{24A2F050-FB38-4BC6-8D88-D46A25C27951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24A2F050-FB38-4BC6-8D88-D46A25C27951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24A2F050-FB38-4BC6-8D88-D46A25C27951}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{24A2F050-FB38-4BC6-8D88-D46A25C27951}.Debug|x64.Build.0 = Debug|Any CPU
+		{24A2F050-FB38-4BC6-8D88-D46A25C27951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24A2F050-FB38-4BC6-8D88-D46A25C27951}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24A2F050-FB38-4BC6-8D88-D46A25C27951}.Release|x64.ActiveCfg = Release|Any CPU
+		{24A2F050-FB38-4BC6-8D88-D46A25C27951}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

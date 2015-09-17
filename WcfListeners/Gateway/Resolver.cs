@@ -17,7 +17,8 @@ namespace ZBrad.FabLibs.Wcf.Gateway
     // The message inspector methods are invoked for every message received/sent.
     internal class Resolver : IDispatchMessageInspector, IEndpointBehavior
     {
-        public IEventLog Log { get { return gateway.Log; } }
+        static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+
         GatewayHost gateway;
         FabricClient fabric;
         RoutingExtension routingExtension;
@@ -75,7 +76,7 @@ namespace ZBrad.FabLibs.Wcf.Gateway
                 return null;
 
             var part = new PartInfo(request);
-            Log.Info(
+            log.Info(
                     "Received request for service {0} with partition key {1}. IsRetry: {2}",
                     request.Headers.To,
                     part.KindName,
@@ -86,13 +87,13 @@ namespace ZBrad.FabLibs.Wcf.Gateway
             if (rsp == null && isRetry && filter != null)
                 this.RemoveFromRoutingTable(filter);
 
-            Log.Info(
+            log.Info(
                     "Resolved for service {0} with partition key {1}. Found {2} endpoints.",
                     request.Headers.To,
                     part.KindName,
                     rsp.Endpoints.Count);
 
-                filter = new Filter(Log, request.Headers.To, rsp);
+                filter = new Filter(request.Headers.To, rsp);
                 this.AddtoRoutingTable(filter);          
 
             return null;
@@ -112,10 +113,9 @@ namespace ZBrad.FabLibs.Wcf.Gateway
                         return this.fabric.ServiceManager.ResolveServicePartitionAsync(part.Message.Headers.To, part.NameKey, prev, this.timeout).Result;
                 }
             }
-            catch (AggregateException)
+            catch (AggregateException e)
             {
-                Log.Error(
-                    "Resolved for service {0} with partition key {1}. Found no endpoints.",
+                log.Error(e, "Resolved for service {0} with partition key {1}. Found no endpoints.",
                     part.Message.Headers.To,
                     part.KindName);                
             }
@@ -207,7 +207,7 @@ namespace ZBrad.FabLibs.Wcf.Gateway
                 this.routingExtension.ApplyConfiguration(config);
             }
 
-            Log.Info("Routing service MessageFilter table updated.");
+            log.Info("Routing service MessageFilter table updated.");
         }
 
         // Remove a MessageFilter from the RouterTable
@@ -226,7 +226,7 @@ namespace ZBrad.FabLibs.Wcf.Gateway
                 this.routingExtension.ApplyConfiguration(config);
             }
 
-            Log.Info("A stale MessageFilter has been removed.");
+            log.Info("A stale MessageFilter has been removed.");
         }
     }
 }

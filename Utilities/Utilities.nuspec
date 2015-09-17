@@ -1,9 +1,9 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package >
   <metadata>
-    <id>ZBrad.FabLib.WcfClients</id>
-    <version>1.0.0-beta</version>
-    <title>ZBrad's Wcf Client for Microsoft Service Fabric</title>
+    <id>ZBrad.FabLib.Utilities</id>
+    <version>1.0.0-preview2</version>
+    <title>ZBrad's Utilities for Microsoft Service Fabric</title>
     <authors>zbrad</authors>
     <owners>zbrad</owners>
     <licenseUrl>https://github.com/zbrad/FabLibs/LICENSE</licenseUrl>
@@ -11,10 +11,11 @@
     <iconUrl>https://github.com/zbrad/FabLibs/FabLibs.ico</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>
-      ZBrad's Wcf Clients for Microsoft Service Fabric
+      ZBrad's Utilities for Microsoft Service Fabric
     </summary>
     <description>
-      Provides a WCF Service Fabric gateway client for a WCF Service Fabric gateway
+      "Any CPU" utility classes for working with Microsoft Service Fabric.  
+      Useful for non-x64 environment, like Visual Studio.
     </description>
     <releaseNotes></releaseNotes>
     <copyright>Brad Merrill 2015</copyright>

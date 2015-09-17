@@ -12,12 +12,12 @@ namespace ZBrad.FabLibs.Wcf
     internal interface ILibListener
     {
         ServiceInitializationParameters Init { get; }
-        IEventLog Log { get; }
     }
 
     internal static class Util
     {
         public static readonly string Node = FabricRuntime.GetNodeContext().IPAddressOrFQDN;
+        static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
 
         public static int GetPort(ILibListener listener, string section)
         {
@@ -47,10 +47,7 @@ namespace ZBrad.FabLibs.Wcf
             }
             catch (Exception e)
             {
-                if (e is AggregateException)
-                    listener.Log.Warn("Failed to get host port from config, aggregate exception: {0}", e.InnerException.Message);
-                else
-                    listener.Log.Warn("Failed to get host port from config, exection: {0}", e.Message);
+                log.Warn(e, "Failed to get host port from config");
             }
 
             return 0;
@@ -65,7 +62,7 @@ namespace ZBrad.FabLibs.Wcf
                 {
                     if (ep.EndpointType == EndpointType.Input && ep.Name.Contains("Service"))
                     {
-                        listener.Log.Info("Using endpoint name {0} protocol {1} port {2} from service endpoints", ep.Name, ep.Protocol, ep.Port);
+                        log.Info("Using endpoint name {0} protocol {1} port {2} from service endpoints", ep.Name, ep.Protocol, ep.Port);
                         return ep.Port;
                     }
                 }
@@ -73,9 +70,9 @@ namespace ZBrad.FabLibs.Wcf
             catch (Exception e)
             {
                 if (e is AggregateException)
-                    listener.Log.Warn("Failed to get host port from endpoints, aggregate exception: {0}", e.InnerException.Message);
+                    log.Warn("Failed to get host port from endpoints, aggregate exception: {0}", e.InnerException.Message);
                 else
-                    listener.Log.Warn("Failed to get host port from endpoints, exection: {0}", e.Message);
+                    log.Warn("Failed to get host port from endpoints, exection: {0}", e.Message);
             }
 
             return 0;

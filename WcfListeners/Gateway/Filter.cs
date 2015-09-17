@@ -16,16 +16,15 @@ namespace ZBrad.FabLibs.Wcf.Gateway
     /// </summary>
     public class Filter : MessageFilter
     {
-        IEventLog log;
+        static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// create a <see cref="MessageFilter"/>
         /// </summary>
         /// <param name="endpoint">the address to filter</param>
         /// <param name="rsp">the service partition to target</param>
-        public Filter(IEventLog log, Uri uri, F.ResolvedServicePartition rsp)
+        public Filter(Uri uri, F.ResolvedServicePartition rsp)
         {
-            this.log = log;
             this.EndpointUri = uri;
             this.ResolvedServicePartition = rsp;
 

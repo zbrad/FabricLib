@@ -23,7 +23,6 @@ namespace ZBrad.FabLibs.Wcf.Service
         Smd.ServiceEndpoint endpoint;
         Smd.ContractDescription contract = Smd.ContractDescription.GetContract(typeof(T));
 
-        public IEventLog Log { get { return listener.Log; } }
         public string UriPath { get { return this.uri.AbsoluteUri; } }
 
         public RestService(RestListener<T> listener)
