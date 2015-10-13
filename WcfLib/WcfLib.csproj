@@ -51,13 +51,14 @@
   <ItemGroup>
     <Compile Include="Filter.cs" />
     <Compile Include="IPartition.cs" />
-    <Compile Include="IResolver.cs" />
     <Compile Include="IRouter.cs" />
+    <Compile Include="IStartable.cs" />
+    <Compile Include="IWcfServiceBase.cs" />
     <Compile Include="Resolver.cs" />
     <Compile Include="RestClient.cs" />
     <Compile Include="RestService.cs" />
     <Compile Include="TcpClient.cs" />
-    <Compile Include="TcpGatewayService.cs" />
+    <Compile Include="Router.cs" />
     <Compile Include="TcpService.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="WcfServiceBase.cs" />

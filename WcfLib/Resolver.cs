@@ -72,12 +72,12 @@ namespace ZBrad.WcfLib
         // Adds message inspection to the EndpointDispatcher
         public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
         {
-            this.Router.Extension = endpointDispatcher.ChannelDispatcher.Host.Extensions.Find<RoutingExtension>();
+            //this.Router.Extension = endpointDispatcher.ChannelDispatcher.Host.Extensions.Find<RoutingExtension>();
 
-            if (this.Router.Extension == null)
-            {
-                throw new InvalidOperationException("RoutingExtension is not found. Make sure RoutingBehavior is added to the ServiceHost");
-            }
+            //if (this.Router.Extension == null)
+            //{
+            //    throw new InvalidOperationException("RoutingExtension is not found. Make sure RoutingBehavior is added to the ServiceHost");
+            //}
 
             endpointDispatcher.DispatchRuntime.MessageInspectors.Add(this);
         }

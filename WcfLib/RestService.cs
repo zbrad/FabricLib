@@ -8,9 +8,7 @@ namespace ZBrad.WcfLib
 {
     public class RestService : WcfServiceBase
     {
-        protected override Smc.Binding GetBinding()
-        {
-            return new Sm.WebHttpBinding(Sm.WebHttpSecurityMode.None);
-        }
+        static Smc.Binding binding = new Sm.WebHttpBinding(Sm.WebHttpSecurityMode.None);
+        public override Smc.Binding Binding {  get { return binding; } }
     }
 }

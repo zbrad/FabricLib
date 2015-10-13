@@ -24,6 +24,12 @@ namespace ZBrad.FabricLib.Wcf
 
         TimeSpan timeout = TimeSpan.FromSeconds(30);
         object routingTableLock = new object();
+        public Uri Retry { get; private set; }
+
+        public void Initialize(Uri retry)
+        {
+            this.Retry = retry;
+        }
 
         public override Task<Filter> CreateFilter(Message request)
         {
@@ -54,7 +60,7 @@ namespace ZBrad.FabricLib.Wcf
             var prev = old == null ? null : old.ResolvedServicePartition;
             var rsp = await getRsp(part, prev);
             var ff = new FabricFilter();
-            ff.Initialize(part, rsp);
+            ff.Initialize(this.Retry, part, rsp);
             return ff;
         }
 

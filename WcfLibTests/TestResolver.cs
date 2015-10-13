@@ -29,7 +29,7 @@ namespace WcfLibTests
             // resolve the "To" address as the matching entry
             foreach (var f in services)
             {
-                if (f.Service.Endpoint.Address.Uri.AbsolutePath == request.Headers.To.AbsolutePath)
+                if (f.Service.Uri.AbsolutePath == request.Headers.To.AbsolutePath)
                 {
                     filter = new TestFilter();
                     filter.Initialize(request.Headers.To, new Uri[] { f.Uri });

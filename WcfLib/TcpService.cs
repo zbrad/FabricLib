@@ -6,13 +6,23 @@ using System.Collections.Generic;
 
 namespace ZBrad.WcfLib
 {
-    public class TcpService : WcfServiceBase
+    public sealed class TcpService : WcfServiceBase
     {
         static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
+        static Smc.Binding binding = new Sm.NetTcpBinding(Sm.SecurityMode.None);
 
-        protected override Smc.Binding GetBinding()
+        public override Smc.Binding Binding { get { return binding; } }
+
+        public override void Initialize(Uri path, object instance)
         {
-            return new Sm.NetTcpBinding(Sm.SecurityMode.None);
+            if (path.Scheme.Equals("tcp"))
+            {
+                var b = new UriBuilder(path);
+                b.Scheme = Uri.UriSchemeNetTcp;
+                path = b.Uri;
+            }
+
+            base.Initialize(path, instance);
         }
     }
 }

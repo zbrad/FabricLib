@@ -6,24 +6,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services;
-using ZBrad.FabricLib.Wcf.Internal;
 
+using ZBrad.FabLibs.Wcf;
+using L = ZBrad.FabLibs.Wcf.Listeners;
+using S = ZBrad.FabLibs.Wcf.Services;
 
-namespace ZBrad.FabricLib.Wcf
+namespace ZBrad.FabLibs.Wcf
 {
-    public class TcpListener : ICommunicationListener
+    public class TcpGateway : ICommunicationListener
     {
-        TcpListenerInternal listener;
+        L.GatewayListener<L.TcpListener, S.TcpService> listener;
 
-        public TcpListener(StatefulService instance)
+        public TcpGateway(StatelessService instance)
         {
-            listener = new TcpListenerInternal();
-            listener.Initialize(instance);
-        }
-
-        public TcpListener(StatelessService instance)
-        {
-            listener = new TcpListenerInternal();
+            listener = new L.GatewayListener<L.TcpListener, S.TcpService>();
             listener.Initialize(instance);
         }
 

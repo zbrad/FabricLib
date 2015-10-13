@@ -73,16 +73,11 @@
   <ItemGroup>
     <Compile Include="Clients\Wcf\IPartition.cs" />
     <Compile Include="Clients\Wcf\Partition.cs" />
-    <Compile Include="Gateways\Wcf\Filter.cs" />
-    <Compile Include="Gateways\Wcf\PartInfo.cs" />
-    <Compile Include="Listeners\Wcf\TcpGateway.cs" />
-    <Compile Include="Gateways\Wcf\FabricResolver.cs" />
-    <Compile Include="Listeners\Wcf\Internal\Listeners\TcpGatewayListenerInternal.cs" />
-    <Compile Include="Listeners\Wcf\Internal\Listeners\RestListenerInternal.cs" />
-    <Compile Include="Listeners\Wcf\Internal\Listeners\TcpListenerInternal.cs" />
-    <Compile Include="Listeners\Wcf\Internal\WcfListenerBase.cs" />
-    <Compile Include="Listeners\Wcf\RestListener.cs" />
-    <Compile Include="Listeners\Wcf\TcpListener.cs" />
+    <Compile Include="Wcf\FabricFilter.cs" />
+    <Compile Include="Wcf\FabricRouter.cs" />
+    <Compile Include="Wcf\PartInfo.cs" />
+    <Compile Include="Wcf\FabricResolver.cs" />
+    <Compile Include="Listener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\ApplicationInstance.cs" />
     <Compile Include="Utilities\ClusterSettings.cs" />
@@ -117,6 +112,7 @@
       <Name>WcfLib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(ProjectDir)..\.nuget\nuget" pack "$(ProjectDir)$(ProjectName).nuspec" -verbosity detailed -OutputDirectory "$(TargetDir)." -BasePath "$(TargetDir)."

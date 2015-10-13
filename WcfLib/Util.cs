@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZBrad.WcfLib
 {
-    internal class Util
+    public class Util
     {
         public static bool Equals<T>(IEnumerable<T> c1, IEnumerable<T> c2) where T : IEquatable<T>
         {
@@ -27,14 +27,19 @@ namespace ZBrad.WcfLib
 
         public static Uri GetWcfUri(Uri u)
         {
-            if (u.Scheme.Equals("tcp"))
-            {
-                var b = new UriBuilder(u);
-                b.Scheme = Uri.UriSchemeNetTcp;
-                u = b.Uri;
-            }
+            if (!u.Scheme.Equals("tcp"))
+                return u;
 
-            return u;
+            UriBuilder b = new UriBuilder(u);
+            b.Scheme = Uri.UriSchemeNetTcp;
+            return b.Uri;
+        }
+
+        public static Uri GetWcfUri(UriBuilder b)
+        {
+            if (b.Scheme.Equals("tcp"))
+                b.Scheme = Uri.UriSchemeNetTcp;
+            return b.Uri;
         }
     }
 }

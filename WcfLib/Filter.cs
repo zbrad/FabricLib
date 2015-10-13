@@ -118,7 +118,7 @@ namespace ZBrad.WcfLib
             return this.Match(message);
         }
 
-        static ContractDescription routerContract = ContractDescription.GetContract(typeof(IRequestReplyRouter));
+        public static ContractDescription RouterContract = ContractDescription.GetContract(typeof(IRequestReplyRouter));
         static RoutedClientEndpoint getClientEndpoint(Uri u)
         {
             var b = getBinding(u);
@@ -126,7 +126,7 @@ namespace ZBrad.WcfLib
                 return null;
 
             var a = new EndpointAddress(u);
-            var e = new RoutedClientEndpoint(routerContract, b, a);
+            var e = new RoutedClientEndpoint(RouterContract, b, a);
             return e;
         }
 

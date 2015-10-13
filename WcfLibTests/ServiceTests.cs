@@ -16,7 +16,7 @@ namespace WcfLibTests
             var foo = new Foo();
             var service = new TcpService();
             service.Initialize(path, foo);
-            service.StartListening();
+            service.StartAsync().Wait();
             Assert.IsTrue(service.IsListening);
 
             TcpClient<IFoo> client;
@@ -37,15 +37,15 @@ namespace WcfLibTests
             var routerPath = new Uri("net.tcp://localhost:9000/");
 
             var service1 = FooService.Create("net.tcp://localhost:8080/bar");
-            service1.Service.StartListening();
+            service1.Service.StartAsync().Wait();
             var service2 = FooService.Create("net.tcp://localhost:8081/baz");
-            service2.Service.StartListening();
+            service2.Service.StartAsync().Wait();
 
             var resolver = new TestResolver(service1, service2);
-            var gateway = new TcpGatewayService();
+            var gateway = new TcpRouter();
 
             gateway.Initialize(routerPath, resolver);
-            gateway.StartListening();
+            gateway.Service.StartAsync().Wait();
 
 
             var clientPath = new Uri("net.tcp://localhost/bar");
