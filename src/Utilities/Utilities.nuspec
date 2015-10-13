@@ -1,0 +1,30 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>ZBrad.FabLib.Utilities</id>
+    <version>1.0.0-preview2</version>
+    <title>ZBrad's Utilities for Microsoft Service Fabric</title>
+    <authors>zbrad</authors>
+    <owners>zbrad</owners>
+    <licenseUrl>https://github.com/zbrad/FabLibs/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/zbrad/FabLibs</projectUrl>
+    <iconUrl>https://github.com/zbrad/FabLibs/ZBrad.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>
+      ZBrad's Utilities for Microsoft Service Fabric
+    </summary>
+    <description>
+      "Any CPU" utility classes for working with Microsoft Service Fabric.  
+      Useful for non-x64 environment, like Visual Studio.
+    </description>
+    <releaseNotes></releaseNotes>
+    <copyright>Brad Merrill 2015</copyright>
+    <tags>ServiceFabric WCF</tags>
+    <dependencies>
+      <dependency id="NLog" version="4.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="*.dll" target="lib\net45" />
+  </files>
+</package>
