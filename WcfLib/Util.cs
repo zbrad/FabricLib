@@ -8,7 +8,7 @@ namespace ZBrad.WcfLib
 {
     public class Util
     {
-        public static bool Equals<T>(IEnumerable<T> c1, IEnumerable<T> c2) where T : IEquatable<T>
+        public static bool ListEquals<T>(IEnumerable<T> c1, IEnumerable<T> c2) where T : IEquatable<T>
         {
             var e1 = c1.GetEnumerator();
             var e2 = c2.GetEnumerator();

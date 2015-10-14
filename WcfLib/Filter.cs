@@ -83,7 +83,7 @@ namespace ZBrad.WcfLib
             if (f == null)
                 return false;
 
-            return Util.Equals(this.Endpoints, f.Endpoints);
+            return Util.ListEquals(this.Endpoints, f.Endpoints);
         }
 
         public override bool Equals(object obj)
