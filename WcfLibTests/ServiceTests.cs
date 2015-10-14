@@ -34,7 +34,7 @@ namespace WcfLibTests
         [TestMethod]
         public void RoutingDefault()
         {
-            var routerPath = new Uri("net.tcp://localhost:9000/");
+            var routerPath = new Uri("net.tcp://localhost:9000/gateway");
 
             var service1 = FooService.Create("net.tcp://localhost:8080/bar");
             service1.Service.StartAsync().Wait();
@@ -45,6 +45,7 @@ namespace WcfLibTests
             var gateway = new TcpRouter();
 
             gateway.Initialize(routerPath, resolver);
+
             gateway.Service.StartAsync().Wait();
 
 

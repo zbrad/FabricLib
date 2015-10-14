@@ -8,32 +8,35 @@ using System.Collections.Generic;
 
 namespace ZBrad.WcfLib
 {
-
     public class TcpRouter : Router<TcpService>
     {
-
+        public TcpRouter()
+        {
+            this.Service = new TcpService();
+        }
     }
 
     public class RestRouter : Router<RestService>
     {
-
+        public RestRouter()
+        {
+            this.Service = new RestService();
+        }
     }
 
-    public abstract class Router<T> : IRouter where T : WcfServiceBase,new()
+    public abstract class Router<T> : IRouter where T : WcfServiceBase
     {
         static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
         public Smr.RoutingConfiguration Configuration { get; set; }
-
-        //public Smr.RoutingBehavior Behavior { get; private set; }
         public Smr.RoutingExtension Extension { get { return this.Service.Host.Extensions.Find<Smr.RoutingExtension>(); } }
-
-        public Uri GatewayPath { get; private set; }
         public Resolver Resolver { get; private set; }
-        public T Service { get; private set; }
+        public T Service { get; protected set; }
 
         public virtual void Initialize(Uri path, Resolver resolver)
         {
-            this.Service = new T();
+            if (this.Service == null)
+                throw new ApplicationException("Service must be initialized in constructor");
+
             var host = new Sm.ServiceHost(typeof(Smr.RoutingService), path);
             this.Service.Initialize(host);
 

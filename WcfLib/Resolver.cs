@@ -34,15 +34,24 @@ namespace ZBrad.WcfLib
         // The RouterTable is updated with the result.         
         public object AfterReceiveRequest(ref Message request, IClientChannel channel, InstanceContext instanceContext)
         {
-            Filter newfilter = null;
-            var filter = getFilter(request);
+            try
+            {
+                Filter newfilter = null;
+                var filter = getFilter(request);
 
-            if (filter == null)
-                newfilter = this.CreateFilter(request).Result;
-            else
-                newfilter = this.UpdateFilter(request, filter).Result;
+                if (filter == null)
+                    newfilter = this.CreateFilter(request).Result;
+                else
+                    newfilter = this.UpdateFilter(request, filter).Result;
 
-            this.updateRouting(filter, newfilter);
+                if (newfilter != null)
+                    this.updateRouting(filter, newfilter);
+            }
+            catch (Exception e)
+            {
+                log.Error(e, "failed to get filter for request to={0}", request.Headers.To);
+            }
+
             return null;
         }
 
@@ -72,13 +81,6 @@ namespace ZBrad.WcfLib
         // Adds message inspection to the EndpointDispatcher
         public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
         {
-            //this.Router.Extension = endpointDispatcher.ChannelDispatcher.Host.Extensions.Find<RoutingExtension>();
-
-            //if (this.Router.Extension == null)
-            //{
-            //    throw new InvalidOperationException("RoutingExtension is not found. Make sure RoutingBehavior is added to the ServiceHost");
-            //}
-
             endpointDispatcher.DispatchRuntime.MessageInspectors.Add(this);
         }
 

@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZBrad.WcfLib;
 
-namespace ZBrad.FabricLib.Wcf
+namespace ZBrad.FabricLib.Gateway
 {
     // This class implements the IEndpointBehavior and IDispatchMessageInspector interfaces.
     // The IEndpointBehavior hooks up the message inspector to the service EndpointDispatcher.
@@ -37,7 +37,7 @@ namespace ZBrad.FabricLib.Wcf
             log.Info("Create filter for service {0} with partition key {1}",
                     request.Headers.To,
                     part.ToString());
-            return getFilter(part, null);
+            return createFilter(part, null);
         }
 
         // This method is invoked by the host for every request message received. For every message received we
@@ -45,17 +45,21 @@ namespace ZBrad.FabricLib.Wcf
         // The RouterTable is updated with the result.         
         public override Task<Filter> UpdateFilter(Message request, Filter oldfilter)
         {
+            // if this is not a retry, then just reuse the existing filter
+            if (!request.Headers.To.Equals(Retry))
+                return Task.FromResult<Filter>(oldfilter);
+
+            // we need to get an updated filter if client told us to retry
             var part = new PartInfo(request);
-            log.Info("Update filter for service {0} with partition key {1}",
+            log.Info("Updating filter for service {0} with partition key {1}",
                     request.Headers.To,
                     part.ToString());
 
             var oldFf = (FabricFilter)oldfilter;
-            ResolvedServicePartition prev = oldFf.ResolvedServicePartition;
-            return getFilter(part, oldFf);
+            return createFilter(part, oldFf);
         }
 
-        async Task<Filter> getFilter(PartInfo part, FabricFilter old)
+        async Task<Filter> createFilter(PartInfo part, FabricFilter old)
         {
             var prev = old == null ? null : old.ResolvedServicePartition;
             var rsp = await getRsp(part, prev);

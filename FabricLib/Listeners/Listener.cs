@@ -8,24 +8,25 @@ using ZBrad.WcfLib;
 
 namespace ZBrad.FabricLib
 {
-    public class Listener : ICommunicationListener
+    public abstract class Listener : ICommunicationListener
     {
         static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
 
         public StatefulService Stateful { get; private set; }
         public StatelessService Stateless { get; private set; }
         public object Instance { get { return this.Stateless != null ? (object)this.Stateless : (object)this.Stateful; } }
-        public Uri Path { get; private set; }
+        public Uri Path { get; protected set; }
         public IStartable Starter { get; private set; }
-        public void Initialize(StatelessService instance, IStartable starter)
+
+        protected virtual void Initialize(StatelessService instance, IStartable starter)
         {
-            var path = Utility.GetDefaultPath(instance);
+            var path = Utility.GetDefaultPartitionUri(instance);
             this.Path = Util.GetWcfUri(path);
             this.Stateless = instance;
             this.Starter = starter;
         }
 
-        public void Initialize(StatefulService instance, IStartable starter)
+        protected virtual void Initialize(StatefulService instance, IStartable starter)
         {
             var path = Utility.GetDefaultPath(instance);
             this.Path = Util.GetWcfUri(path);
@@ -33,24 +34,24 @@ namespace ZBrad.FabricLib
             this.Starter = starter;
         }
 
-        public void Initialize(ServiceInitializationParameters init)
+        public virtual void Initialize(ServiceInitializationParameters init)
         {
             // nothing yet
         }
 
-        public async Task<string> OpenAsync(CancellationToken token)
+        public async virtual Task<string> OpenAsync(CancellationToken token)
         {
             log.Info("Start listening on {0}", this.Path);
             await this.Starter.StartAsync();
             return this.Path.AbsoluteUri;
         }
 
-        public Task CloseAsync(CancellationToken token)
+        public virtual Task CloseAsync(CancellationToken token)
         {
             return this.Starter.StopAsync();
         }
 
-        public void Abort()
+        public virtual void Abort()
         {
             this.Starter.StopAsync();
         }

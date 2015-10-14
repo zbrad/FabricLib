@@ -9,7 +9,5 @@ namespace ZBrad.WcfLib
         RoutingConfiguration Configuration { get; set; }
         RoutingExtension Extension { get; }
         Resolver Resolver { get; }
-
-        void Initialize(Uri path, Resolver resolver);
     }
 }

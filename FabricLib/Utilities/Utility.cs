@@ -93,7 +93,7 @@ namespace ZBrad.FabricLib.Utilities
 
         public static UriBuilder GetDefaultPath(StatefulService service)
         {
-            var uri = GetDefaultUri(service.ServiceInitializationParameters);
+            var uri = GetDefaultServiceUri(service.ServiceInitializationParameters);
             var id = service.ServiceInitializationParameters.ReplicaId;
             var part = GetPartitionDescription(service.ServicePartition.PartitionInfo);
 
@@ -118,9 +118,9 @@ namespace ZBrad.FabricLib.Utilities
             }
         }
 
-        public static UriBuilder GetDefaultPath(StatelessService service)
+        public static UriBuilder GetDefaultPartitionUri(StatelessService service)
         {
-            var uri = GetDefaultUri(service.ServiceInitializationParameters);
+            var uri = GetDefaultServiceUri(service.ServiceInitializationParameters);
             var id = service.ServiceInitializationParameters.InstanceId;
             var part = GetPartitionDescription(service.ServicePartition.PartitionInfo);
 
@@ -222,7 +222,7 @@ namespace ZBrad.FabricLib.Utilities
             }
         }
 
-        public static UriBuilder GetDefaultUri(ServiceInitializationParameters sip)
+        public static UriBuilder GetDefaultServiceUri(ServiceInitializationParameters sip)
         {
             var context = sip.CodePackageActivationContext;
             var service = sip.ServiceName;
@@ -234,7 +234,10 @@ namespace ZBrad.FabricLib.Utilities
                     if (ep.Name.Contains("Service"))
                     {
                         var b = new UriBuilder(service);
-                        b.Scheme = Enum.GetName(typeof(EndpointProtocol), ep.Protocol);
+                        if (ep.Protocol == EndpointProtocol.Tcp)
+                            b.Scheme = Uri.UriSchemeNetTcp;
+                        else
+                            b.Scheme = Enum.GetName(typeof(EndpointProtocol), ep.Protocol);
                         b.Host = Node;
                         b.Port = ep.Port;
 

@@ -10,7 +10,7 @@ using System;
 using System.Text;
 using ZBrad.WcfLib;
 
-namespace ZBrad.FabricLib.Wcf
+namespace ZBrad.FabricLib.Gateway
 {
     /// <summary>
     /// A custom MessageFilter class with matches based on EndpointAddress
@@ -79,7 +79,7 @@ namespace ZBrad.FabricLib.Wcf
         {
             string partitionKey = null;
 
-            int partitionHeaderIndex = request.Headers.FindHeader(Wcf.Partition.KeyHeader, "");
+            int partitionHeaderIndex = request.Headers.FindHeader(Client.PartitionBehavior.KeyHeader, "");
             if (partitionHeaderIndex != -1)
             {
                 partitionKey = request.Headers.GetHeader<string>(partitionHeaderIndex);

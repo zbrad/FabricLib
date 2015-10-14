@@ -11,10 +11,10 @@ using System.Text;
 using System.Threading.Tasks;
 using ZBrad.WcfLib;
 
-namespace ZBrad.FabricLib.Wcf
+namespace ZBrad.FabricLib.Gateway
 {
     internal class PartInfo
-    { 
+    {
         public Message Message { get; set; }
         public ServicePartitionKind Kind { get; set; }
         public string KindName { get { return Enum.GetName(typeof(ServicePartitionKind), this.Kind); } }

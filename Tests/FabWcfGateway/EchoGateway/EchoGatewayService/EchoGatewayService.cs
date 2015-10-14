@@ -6,7 +6,9 @@ namespace EchoApp
     {
         protected override ICommunicationListener CreateCommunicationListener()
         {
-            return new ZBrad.FabricLib.Wcf.TcpGateway(this);
+            var listener = new ZBrad.FabricLib.WcfTcpGatewayListener();
+            listener.Initialize(this);
+            return listener;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.ServiceFabric.Services;
+using ZBrad.FabricLib;
 
 namespace EchoApp
 {
@@ -6,7 +7,9 @@ namespace EchoApp
     {
         protected override ICommunicationListener CreateCommunicationListener()
         {
-            return new ZBrad.FabricLib.Wcf.TcpListener(this);
+            var listener = new ZBrad.FabricLib.WcfTcpListener();
+            listener.Initialize(this);
+            return listener;
         }
 
         public string Echo(string text)

@@ -35,6 +35,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Channels" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,9 +52,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\FabricLibClient\FabricLibClient.csproj">
-      <Project>{ccbe146d-99d8-42b0-a4d4-1303c96235f1}</Project>
-      <Name>FabricLibClient</Name>
+    <ProjectReference Include="..\..\..\WcfLib\WcfLib.csproj">
+      <Project>{31c09892-446e-442a-b5d8-648ba6021f77}</Project>
+      <Name>WcfLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\EchoData\EchoData.csproj">
       <Project>{0208daba-b1b6-45fc-87b2-9e55e4601dbe}</Project>

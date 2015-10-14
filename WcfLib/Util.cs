@@ -10,16 +10,23 @@ namespace ZBrad.WcfLib
     {
         public static bool Equals<T>(IEnumerable<T> c1, IEnumerable<T> c2) where T : IEquatable<T>
         {
-            bool t1 = false, t2 = false;
             var e1 = c1.GetEnumerator();
             var e2 = c2.GetEnumerator();
 
             // while both collections have items, movenext and compare for equals
-            while ( (t1 = e1.MoveNext()) && (t2 = e2.MoveNext()) )
+            bool t1 = e1.MoveNext();
+            bool t2 = e2.MoveNext();
+
+            while (t1 && t2)
+            {
                 if (!e1.Current.Equals(e2.Current))
                     return false;
 
-            // if either has items remaining, then they can be equal
+                t1 = e1.MoveNext();
+                t2 = e2.MoveNext();
+            }
+
+            // if either has items remaining, then they cannot be equal
             if (t1 || t2)
                 return false;
             return true;

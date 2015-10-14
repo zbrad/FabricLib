@@ -3,12 +3,12 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 
-namespace ZBrad.FabricLib.Wcf
+namespace ZBrad.FabricLib.Client
 {
     /// <summary>
     /// specifies partition to by used by client
     /// </summary>
-    public class Partition : IEndpointBehavior
+    public class PartitionBehavior : IEndpointBehavior
     {
         public const string KeyHeader = "PartitionKey";
 
@@ -18,7 +18,7 @@ namespace ZBrad.FabricLib.Wcf
         /// constructs a <c>Partition</c> for client use
         /// </summary>
         /// <param name="key">partition key to be used</param>
-        public Partition(string key)
+        public PartitionBehavior(string key)
         {
             header = new Header(key);
         }
