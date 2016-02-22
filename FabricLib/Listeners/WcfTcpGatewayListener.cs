@@ -2,7 +2,7 @@
 using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Services;
+using Microsoft.ServiceFabric.Services.Runtime;
 using ZBrad.FabricLib.Utilities;
 using ZBrad.WcfLib;
 using ZBrad.FabricLib.Gateway;

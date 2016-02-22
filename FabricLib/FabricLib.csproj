@@ -40,11 +40,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.ServiceFabric.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\packages\Microsoft.ServiceFabric.Data.1.1.280-preview2\lib\net45\Microsoft.ServiceFabric.Data.dll</HintPath>
+      <HintPath>..\packages\Microsoft.ServiceFabric.Data.1.4.87-preview\lib\net45\Microsoft.ServiceFabric.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.Internal, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\packages\Microsoft.ServiceFabric.4.4.87-preview\lib\net45\Microsoft.ServiceFabric.Internal.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.Internal.Strings, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\packages\Microsoft.ServiceFabric.4.4.87-preview\lib\net45\Microsoft.ServiceFabric.Internal.Strings.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.ServiceFabric.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\packages\Microsoft.ServiceFabric.Services.1.1.280-preview2\lib\net45\Microsoft.ServiceFabric.Services.dll</HintPath>
+      <HintPath>..\packages\Microsoft.ServiceFabric.Services.1.4.87-preview\lib\net45\Microsoft.ServiceFabric.Services.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
@@ -53,13 +61,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Fabric, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64" />
-    <Reference Include="System.Fabric.Common.Internal, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\packages\Microsoft.ServiceFabric.4.1.280-preview2\lib\net45\System.Fabric.Common.Internal.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Fabric.Common.Internal.Strings, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ServiceFabric.4.1.280-preview2\lib\net45\System.Fabric.Common.Internal.Strings.dll</HintPath>
+    <Reference Include="System.Fabric, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\packages\Microsoft.ServiceFabric.4.4.87-preview\lib\net45\System.Fabric.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
@@ -69,6 +72,10 @@
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Serialization" />
+    <Reference Include="ZBrad.WcfLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=a4edc0d037389d47, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZBrad.WcfLib.1.0.0-beta\lib\net45\ZBrad.WcfLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Listeners\WcfTcpGatewayListener.cs" />
@@ -110,10 +117,6 @@
     <ProjectReference Include="..\FabricLibClient\FabricLibClient.csproj">
       <Project>{ccbe146d-99d8-42b0-a4d4-1303c96235f1}</Project>
       <Name>FabricLibClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WcfLib\WcfLib.csproj">
-      <Project>{31c09892-446e-442a-b5d8-648ba6021f77}</Project>
-      <Name>WcfLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using Microsoft.ServiceFabric.Services;
+using Microsoft.ServiceFabric.Services.Runtime;
 using System.Reflection;
 using NLog.Layouts;
 using NLog.Config;
