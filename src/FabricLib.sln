@@ -5,16 +5,7 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FabricLib", "FabricLib\FabricLib.csproj", "{D3BD5D6D-8CA2-41B1-AC96-36521875E481}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{35CAD2FC-1F7D-4BB3-BB4D-E97CCA5684CC}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\nuget.exe = .nuget\nuget.exe
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FabricLibClient", "FabricLibClient\FabricLibClient.csproj", "{CCBE146D-99D8-42B0-A4D4-1303C96235F1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlAclLib", "UrlAclLib\UrlAclLib.csproj", "{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlAcl", "UrlAcl\UrlAcl.csproj", "{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,22 +29,6 @@ Global
 		{CCBE146D-99D8-42B0-A4D4-1303C96235F1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CCBE146D-99D8-42B0-A4D4-1303C96235F1}.Release|x64.ActiveCfg = Release|Any CPU
 		{CCBE146D-99D8-42B0-A4D4-1303C96235F1}.Release|x64.Build.0 = Release|Any CPU
-		{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}.Debug|x64.Build.0 = Debug|Any CPU
-		{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}.Release|x64.ActiveCfg = Release|Any CPU
-		{AF7FEC7E-03E0-482B-99CE-99AF47373AA8}.Release|x64.Build.0 = Release|Any CPU
-		{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}.Debug|x64.Build.0 = Debug|Any CPU
-		{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}.Release|x64.ActiveCfg = Release|Any CPU
-		{C8BAB9AB-DC6E-44E1-BC4F-865141F27F48}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

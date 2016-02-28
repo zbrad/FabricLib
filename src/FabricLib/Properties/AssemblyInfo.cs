@@ -5,12 +5,15 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ZBrad.ServiceFabric.WcfClients")]
-[assembly: AssemblyDescription("Wcf Clients for calling ServiceFabric service directly or via gateway")]
+[assembly: AssemblyTitle("ZBrad's Library for Microsoft Service Fabric")]
+[assembly: AssemblyDescription(@"Provides classes for use with Microsoft Service Fabric.
+      Currently features for Wcf-based services and Gateways.
+      Also includes some helper utilities for creating/removing, starting/stopping
+      Fabric services and applications.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Brad Merrill")]
-[assembly: AssemblyProduct("WcfClients")]
-[assembly: AssemblyCopyright("Copyright © Brad Merrill 2015")]
+[assembly: AssemblyProduct("ZBrad.FabricLib")]
+[assembly: AssemblyCopyright("Copyright Brad Merrill © 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +23,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("bf758221-c709-44a5-9601-8c24d64efe20")]
+[assembly: Guid("d3bd5d6d-8ca2-41b1-ac96-36521875e481")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +35,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyInformationalVersion("1.0.0")]

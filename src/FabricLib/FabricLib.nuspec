@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$-preview2</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/zbrad/FabricLib/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/zbrad/FabricLib</projectUrl>
+    <iconUrl>https://github.com/zbrad/FabricLib/ZBrad.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>$title$</summary>
+    <description>$description$</description>
+    <releaseNotes></releaseNotes>
+    <tags>ServiceFabric</tags>
+  </metadata>
+</package>
