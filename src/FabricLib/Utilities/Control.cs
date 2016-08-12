@@ -41,7 +41,7 @@ namespace ZBrad.FabricLib.Utilities
         static string tracePat = @"(?<Collector>Fabric\w+)\s+(?<Type>\w+)\s+(?<Status>\w+)";
         static Regex traceRegex = new Regex(tracePat, RegexOptions.Compiled);
 
-        private PackageSettings currentPackage = new PackageSettings();
+        private Package currentPackage = new Package();
         private ClusterSettings currentCluster = new ClusterSettings();
         private List<string> stoppedTraces;
 
@@ -97,7 +97,7 @@ namespace ZBrad.FabricLib.Utilities
         /// <summary>
         /// gets or sets current package settings
         /// </summary>
-        public PackageSettings Package { get { return this.currentPackage; } set { this.currentPackage = value; } }
+        public Package Package { get { return this.currentPackage; } set { this.currentPackage = value; } }
 
         /// <summary>
         /// gets or sets current cluster settings
@@ -389,39 +389,21 @@ namespace ZBrad.FabricLib.Utilities
                 return false;
             }
 
-            bool wasSuccessful = true;
-            IEnumerator<string> dirs = SafeEnumerator.GetDirectoryEnumerator(Control.FabricDataRoot, "work");
-            while (dirs.MoveNext())
-            {
-                try
-                {
-                    Directory.Delete(dirs.Current, true);
-                }
-                catch (Exception e)
-                {
-                    wasSuccessful = false;
-                    this.Error("delete work folder failed: {0}", e.Message);
-                }
-            }
+            if (!tryRemoveWork())
+                return false;
 
-            if (Directory.Exists(ClusterSettings.DevImageStoreFolder))
-            {
-                try
-                {
-                    Directory.Delete(ClusterSettings.DevImageStoreFolder, true);
-                    Directory.CreateDirectory(ClusterSettings.DevImageStoreFolder);
-                }
-                catch (Exception e)
-                {
-                    wasSuccessful = false;
-                    this.Error("delete image store folder failed: {0}", e.InnerException != null ? e.InnerException.Message : e.Message);
-                }
-            }
-            else
-            {
-                Directory.CreateDirectory(ClusterSettings.DevImageStoreFolder);
-            }
+            if (!tryRemoveImageStore())
+                return false;
 
+            if (!tryRemoveLog())
+                return false;
+
+            this.Info("Cluster clean successful");
+            return true;
+        }
+
+        bool tryRemoveLog()
+        {
             IEnumerator<string> logFiles = SafeEnumerator.GetFileEnumerator(FabricDataRoot, "ReplicatorShared.log");
             while (logFiles.MoveNext())
             {
@@ -431,18 +413,47 @@ namespace ZBrad.FabricLib.Utilities
                 }
                 catch (Exception e)
                 {
-                    wasSuccessful = false;
                     this.Error("delete replication log failed: {0}", e.Message);
+                    return false;
                 }
             }
 
-            if (!wasSuccessful)
+            return true;
+        }
+
+        bool tryRemoveWork()
+        {
+            IEnumerator<string> dirs = SafeEnumerator.GetDirectoryEnumerator(Control.FabricDataRoot, "work");
+            while (dirs.MoveNext())
             {
-                this.Info("failed to clean cluster");
-                return false;
+                try
+                {
+                    Directory.Delete(dirs.Current, true);
+                }
+                catch (Exception e)
+                {
+                    this.Error("delete work folder failed: {0}", e.Message);
+                    return false;
+                }
             }
 
-            this.Info("Cluster clean successful");
+            return true;
+        }
+
+        bool tryRemoveImageStore()
+        {
+            if (Directory.Exists(ClusterSettings.DevImageStoreFolder))
+                try
+                {
+                    Directory.Delete(ClusterSettings.DevImageStoreFolder, true);
+                    Directory.CreateDirectory(ClusterSettings.DevImageStoreFolder);
+                }
+                catch (Exception e)
+                {
+                    this.Error("delete image store folder failed: {0}", e.InnerException != null ? e.InnerException.Message : e.Message);
+                    return false;
+                }
+
             return true;
         }
 
@@ -1040,8 +1051,8 @@ namespace ZBrad.FabricLib.Utilities
                 }
 
                 p = list[0];
-                this.currentPackage.Data[PackageSettings.Pid] = p.Id.ToString(CultureInfo.InvariantCulture);
-                this.currentPackage.Data[PackageSettings.ProcessName] = p.ProcessName;
+                this.currentPackage.Data[Package.Pid] = p.Id.ToString(CultureInfo.InvariantCulture);
+                this.currentPackage.Data[Package.ProcessName] = p.ProcessName;
                 return true;
             }
             catch 
@@ -1134,15 +1145,15 @@ namespace ZBrad.FabricLib.Utilities
 
                 this.Info("tryStartHost cmd=" + psi.FileName + " " + psi.Arguments);
                 Process p = Process.Start(psi);
-                this.currentPackage.Data[PackageSettings.ProcessName] = p.ProcessName;
-                this.currentPackage.Data[PackageSettings.Pid] = p.Id.ToString(CultureInfo.InvariantCulture);
+                this.currentPackage.Data[Package.ProcessName] = p.ProcessName;
+                this.currentPackage.Data[Package.Pid] = p.Id.ToString(CultureInfo.InvariantCulture);
 
                 Task.Factory.StartNew(() =>
                     {
                         p.WaitForExit();
                         string temp;
-                        this.currentPackage.Data.TryRemove(PackageSettings.ProcessName, out temp);
-                        this.currentPackage.Data.TryRemove(PackageSettings.Pid, out temp);
+                        this.currentPackage.Data.TryRemove(Package.ProcessName, out temp);
+                        this.currentPackage.Data.TryRemove(Package.Pid, out temp);
                     });
 
                 return true;

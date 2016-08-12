@@ -67,7 +67,7 @@ namespace ZBrad.FabricLib.Utilities
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    struct QueryUrlAcl
+    class QueryUrlAcl
     {
         public QueryType QueryDesc;
         [MarshalAs(UnmanagedType.LPWStr)]
@@ -77,41 +77,45 @@ namespace ZBrad.FabricLib.Utilities
         public static int Length = Marshal.SizeOf(typeof(QueryUrlAcl));
     }
 
-    internal static class HttpNative
+
+    static class UnsafeNativeMethods
     {
         [DllImport("httpapi.dll", SetLastError = true, PreserveSig = true)]
-        internal static extern ulong HttpInitialize(
+        internal static extern int HttpInitialize(
             ApiVersion version,
             InitializeFlags flags,
-            IntPtr reserved
+            IntPtr reserved = default(IntPtr)
             );
 
-        [DllImport("httpapi.dll", SetLastError = true, ExactSpelling=true, PreserveSig=true)]
-        internal static extern ulong HttpSetServiceConfiguration(
+        [DllImport("httpapi.dll", SetLastError = true, ExactSpelling = true, PreserveSig = true)]
+        internal static extern int HttpSetServiceConfiguration(
             IntPtr handle,
             Config configId,
             IntPtr info,
             int length,
-            IntPtr overlapped
+            IntPtr overlapped = default(IntPtr)
             );
 
-        [DllImport("httpapi.dll", SetLastError = true, ExactSpelling = true, PreserveSig = true, EntryPoint="HttpSetServiceConfiguration")]
-        internal static extern ulong SetAcl(
+        [DllImport("httpapi.dll", SetLastError = true, ExactSpelling = true, PreserveSig = true, EntryPoint = "HttpSetServiceConfiguration")]
+        internal static extern int SetAcl(
             IntPtr handle,
             Config configId,
             UrlAcl urlAcl,
             int length,
-            IntPtr overlapped
+            IntPtr overlapped = default(IntPtr)
             );
 
         [DllImport("httpapi.dll", SetLastError = true, ExactSpelling = true, PreserveSig = true)]
-        internal static extern ulong HttpTerminate(InitializeFlags flags, IntPtr mustBeZero);
+        internal static extern int HttpTerminate(InitializeFlags flags, IntPtr reserved = default(IntPtr));
+
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Portability", "CA1901:PInvokeDeclarationsShouldBePortable", MessageId = "1", 
+            Justification = "Signature has been validated against MSDN API ref: https://msdn.microsoft.com/en-us/library/windows/desktop/aa364482(v=vs.85).aspx")]
+        [DllImport("httpapi.dll", SetLastError = true, ExactSpelling = true, PreserveSig = true)]
+        internal static extern int HttpCreateHttpHandle(out long queue, ulong reserved = 0);
 
         [DllImport("httpapi.dll", SetLastError = true, ExactSpelling = true, PreserveSig = true)]
-        internal static extern ulong HttpCreateHttpHandle(out long queue, IntPtr mustBeZero);
-
-        [DllImport("httpapi.dll", SetLastError = true, ExactSpelling = true, PreserveSig = true)]
-        internal static extern ulong HttpQueryServiceConfiguration(
+        internal static extern int HttpQueryServiceConfiguration(
              IntPtr service,
              Config configId,
              IntPtr pInputConfigInfo,
@@ -119,10 +123,10 @@ namespace ZBrad.FabricLib.Utilities
              IntPtr pOutputConfigInfo,
              int OutputConfigInfoLength,
              [Optional()] out int pReturnLength,
-             IntPtr pOverlapped);
+             IntPtr overlapped = default(IntPtr));
 
         [DllImport("httpapi.dll", SetLastError = true, ExactSpelling = true, PreserveSig = true, EntryPoint = "HttpQueryServiceConfiguration")]
-        internal static extern ulong GetAcl(
+        internal static extern int GetAcl(
             IntPtr service,
             Config configId,
             QueryUrlAcl query,
@@ -130,40 +134,36 @@ namespace ZBrad.FabricLib.Utilities
             ref UrlAcl acl,
             int aclLength,
             out long returnLength,
-            IntPtr overlapped
+            IntPtr overlapped = default(IntPtr)
             );
-        internal static ulong Initialize()
+    }
+
+    public static class HttpApi
+    {
+        public static int Initialize()
         {
             ApiVersion v = new ApiVersion();
             v.HttpApiMajorVersion = 1;
             v.HttpApiMinorVersion = 0;
 
-            return HttpInitialize(v, InitializeFlags.Config, IntPtr.Zero);
+            return UnsafeNativeMethods.HttpInitialize(v, InitializeFlags.Config);
         }
 
-        internal static ulong Terminate()
+        public static int Terminate()
         {
-            return HttpTerminate(InitializeFlags.Config, IntPtr.Zero);
-        }
-    }
-
-    public static class HttpApi
-    {
-        public static void Initialize()
-        {
-            HttpNative.Initialize();
+            return UnsafeNativeMethods.HttpTerminate(InitializeFlags.Config);
         }
 
-        public static ulong SetAcl(string url, string acl)
+        public static int SetAcl(string url, string acl)
         {
             UrlAcl u = new UrlAcl();
             u.Prefix = url;
             u.Acl = acl;
-            ulong rc = HttpNative.SetAcl(IntPtr.Zero, Config.UrlAclInfo, u, UrlAcl.Length, IntPtr.Zero);
+            var rc = UnsafeNativeMethods.SetAcl(IntPtr.Zero, Config.UrlAclInfo, u, UrlAcl.Length);
             return rc;
         }
         
-        public static ulong GetAcl(string url, out string acl)
+        public static int GetAcl(string url, out string acl)
         {
             acl = null;
             QueryUrlAcl q = new QueryUrlAcl();
@@ -172,7 +172,7 @@ namespace ZBrad.FabricLib.Utilities
             UrlAcl info = new UrlAcl();
             long returnLength;
 
-            ulong rc = HttpNative.GetAcl(IntPtr.Zero, Config.UrlAclInfo, q, QueryUrlAcl.Length, ref info, UrlAcl.Length, out returnLength, IntPtr.Zero);
+            var rc = UnsafeNativeMethods.GetAcl(IntPtr.Zero, Config.UrlAclInfo, q, QueryUrlAcl.Length, ref info, UrlAcl.Length, out returnLength);
             if (rc == 0)
                 acl = info.Acl;
             return rc;
@@ -181,7 +181,7 @@ namespace ZBrad.FabricLib.Utilities
         public static RequestQueue GetRequestQueue()
         {
             long handle;
-            ulong rc = HttpNative.HttpCreateHttpHandle(out handle, IntPtr.Zero);
+            var rc = UnsafeNativeMethods.HttpCreateHttpHandle(out handle);
             if (rc == 0)
                 return new RequestQueue(handle);
             return null;

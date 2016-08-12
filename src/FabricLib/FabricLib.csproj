@@ -92,12 +92,15 @@
     <Compile Include="Utilities\Control64.cs" />
     <Compile Include="Utilities\Debug.cs" />
     <Compile Include="Utilities\Defaults.cs" />
+    <Compile Include="Utilities\PackageException.cs" />
+    <Compile Include="Utilities\ControlException.cs" />
     <Compile Include="Utilities\HttpApi.cs" />
-    <Compile Include="Utilities\PackageSettings.cs" />
+    <Compile Include="Utilities\Package.cs" />
     <Compile Include="Utilities\SafeEnumerator.cs" />
     <Compile Include="Utilities\Schema\Load.cs" />
-    <Compile Include="Utilities\Schema\ServiceFabricServiceModel.cs" />
+    <Compile Include="Utilities\Schema\ServiceFabricServiceModel.designer.cs" />
     <Compile Include="Utilities\TaskUtility.cs" />
+    <Compile Include="Utilities\UpgradeOptions.cs" />
     <Compile Include="Utilities\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -108,10 +111,14 @@
     </None>
     <None Include="Utilities\Schema\ServiceFabricServiceModel.xsd">
       <SubType>Designer</SubType>
+      <CustomToolNamespace>ZBrad.FabricLib.Utilities.Schema</CustomToolNamespace>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Utilities\Schema\XsdConfig.xml" />
+    <None Include="Utilities\Schema\xsd2code.bat" />
+    <Content Include="Utilities\Schema\XsdConfig.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FabricLibClient\FabricLibClient.csproj">

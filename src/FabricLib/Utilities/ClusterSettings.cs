@@ -336,7 +336,7 @@ namespace ZBrad.FabricLib.Utilities
         public Dictionary<string, string> Data { get { return this.data; } set { this.data = value; } }
 
         /// <summary>
-        /// try to create a new <see cref="PackageSettings"/>
+        /// try to create a new <see cref="Package"/>
         /// </summary>
         /// <param name="args">arguments to use</param>
         /// <param name="clusterSettings">the new package settings</param>

@@ -3,27 +3,32 @@
 <!-- WARNING: Any Updates to the model must update both native and managed ServiceModel in the code. -->
 <xs:schema xmlns="http://schemas.microsoft.com/2011/01/fabric" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://schemas.microsoft.com/2011/01/fabric" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:annotation>
-		<xs:documentation>Windows Fabric Service Model. Version: V1_RTM_3 [MajorVersion_Milestone_ChangeNo]</xs:documentation>
+		<xs:documentation>Microsoft Azure Service Fabric Service Model. Version: V1_RTM_3 [MajorVersion_Milestone_ChangeNo]</xs:documentation>
 	</xs:annotation>
 	<!-- Copyright (c) Microsoft Corporation. All rights reserved.-->
 	<xs:element name="ClusterManifest" type="ClusterManifestType">
 		<xs:annotation>
-			<xs:documentation>Describes a Windows Fabric Cluster.</xs:documentation>
+			<xs:documentation>Describes a Microsoft Azure Service Fabric Cluster.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="ApplicationManifest" type="ApplicationManifestType">
 		<xs:annotation>
-			<xs:documentation>Describes a manifest for an application type that can be instantiated in a Windows Fabric cluster. The manifest allows use of parameters to customize application instances for a particular cluster.</xs:documentation>
+			<xs:documentation>Describes a manifest for an application type that can be instantiated in a Microsoft Azure Service Fabric cluster. The manifest allows use of parameters to customize application instances for a particular cluster.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="ServiceManifest" type="ServiceManifestType">
 		<xs:annotation>
-			<xs:documentation>Manifest of a packaged Windows Fabric service. A Service Manifest is a unit of deployment and activation. It consists of independently upgradable units of code, configuration and data.</xs:documentation>
+			<xs:documentation>Manifest of a packaged Microsoft Azure Service Fabric service. A Service Manifest is a unit of deployment and activation. It consists of independently upgradable units of code, configuration and data.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="Application" type="AppInstanceDefinitionType">
+		<xs:annotation>
+			<xs:documentation>Application Instance specific information like applciation name and application parameter values used to create applciation. Parmaeter values in this file overrides the default parameter values defined in Application Manifest.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="Settings" type="SettingsType">
 		<xs:annotation>
-			<xs:documentation>Defiles configurable settings for the code packages of a service. Windows Fabric does not interpret the settings, however it makes them available via Runtime APIs for use by the code components.</xs:documentation>
+			<xs:documentation>Defiles configurable settings for the code packages of a service. Microsoft Azure Service Fabric does not interpret the settings, however it makes them available via Runtime APIs for use by the code components.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:element name="InfrastructureInformation" type="InfrastructureInformationType">
@@ -39,7 +44,7 @@
 	<!-- ****** Types used by ClusterManifest *****-->
 	<xs:complexType name="ClusterManifestType">
 		<xs:annotation>
-			<xs:documentation>Describes a Windows Fabric Cluster.</xs:documentation>
+			<xs:documentation>Describes a Microsoft Azure Service Fabric Cluster.</xs:documentation>
 		</xs:annotation>
 		<xs:all>
 			<xs:element name="NodeTypes" minOccurs="1">
@@ -239,12 +244,28 @@
 			<xs:annotation>
 				<xs:documentation>This is Used only when credential is X509. This is the actual name or thumbprint of the certificate.</xs:documentation>
 			</xs:annotation>
-		</xs:attribute>        
+		</xs:attribute>
+		<xs:attribute name="Name" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="EndpointCertificateType">
+		<xs:annotation>
+			<xs:documentation>This is Used only when credential is X509. This specifies the certificate information.</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="X509StoreName" type="xs:string" default="My">
+			<xs:annotation>
+				<xs:documentation>This is Used only when credential is X509. This specifies the certificate StoreName.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="X509FindValue" use="required">
+			<xs:annotation>
+				<xs:documentation>This is the thumbprint of the certificate used for https.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 		<xs:attribute name="Name" type="xs:string" use="optional"/>
 	</xs:complexType>
 	<xs:complexType name="FabricNodeType">
 		<xs:annotation>
-			<xs:documentation>Describes a Windows Fabric Node.</xs:documentation>
+			<xs:documentation>Describes a Microsoft Azure Service Fabric Node.</xs:documentation>
 		</xs:annotation>
 		<xs:attribute name="NodeName" type="xs:string" use="required">
 			<xs:annotation>
@@ -287,12 +308,14 @@
 			<xs:element name="LeaseDriverEndpoint" type="InternalEndpointType"/>
 			<xs:element name="ClusterConnectionEndpoint" type="InternalEndpointType"/>
 			<xs:element name="HttpGatewayEndpoint" type="InputEndpointType" minOccurs="0"/>
+			<xs:element name="HttpApplicationGatewayEndpoint" type="InputEndpointType" minOccurs="0"/>
 			<xs:element name="ServiceConnectionEndpoint" type="InternalEndpointType" minOccurs="0"/>
 			<xs:element name="ClusterManagerReplicatorEndpoint" type="InternalEndpointType" minOccurs="0"/>
 			<xs:element name="RepairManagerReplicatorEndpoint" type="InternalEndpointType" minOccurs="0"/>
 			<xs:element name="NamingReplicatorEndpoint" type="InternalEndpointType" minOccurs="0"/>
 			<xs:element name="FailoverManagerReplicatorEndpoint" type="InternalEndpointType" minOccurs="0"/>
 			<xs:element name="ImageStoreServiceReplicatorEndpoint" type="InternalEndpointType" minOccurs="0"/>
+			<xs:element name="FaultAnalysisServiceReplicatorEndpoint" type="InternalEndpointType" minOccurs="0"/>
 			<xs:element name="DefaultReplicatorEndpoint" type="InternalEndpointType" minOccurs="0"/>
 			<xs:element name="ApplicationEndpoints" minOccurs="0">
 				<xs:complexType>
@@ -338,7 +361,7 @@
 	<!-- ****** Types used by Application Manifest *****-->
 	<xs:complexType name="ApplicationManifestType">
 		<xs:annotation>
-			<xs:documentation>Describes a manifest for an application type that can be instantiated in a Windows Fabric cluster. The manifest allows use of parameters to customize application instances for a particular cluster.</xs:documentation>
+			<xs:documentation>Describes a manifest for an application type that can be instantiated in a Microsoft Azure Service Fabric cluster. The manifest allows use of parameters to customize application instances for a particular cluster.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="Description" type="xs:string" minOccurs="0">
@@ -412,6 +435,7 @@
 				<xs:complexType>
 					<xs:sequence maxOccurs="unbounded">
 						<xs:element name="SecretsCertificate" type="FabricCertificateType" minOccurs="0"/>
+						<xs:element name="EndpointCertificate" type="EndpointCertificateType" minOccurs="0"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -442,6 +466,11 @@
 			<xs:element name="PackageSharingPolicy" type="PackageSharingPolicyType" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Indicates if a code, config or data package should be shared.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EndpointBindingPolicy" type="EndpointBindingPolicyType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Specifies certificate that should be configured for an endpoint.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:choice>
@@ -520,6 +549,22 @@
 					<xs:enumeration value="Code"/>
 					<xs:enumeration value="Config"/>
 					<xs:enumeration value="Data"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="EndpointBindingPolicyType">
+		<xs:attribute name="EndpointRef">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="CertificateRef" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>
@@ -603,6 +648,11 @@
 								<xs:documentation>Name of this service relative to this application Name Uri. Fully qualified Name of the service is a combination of Name Uri of the Application and this Name.</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
+						<xs:attribute name="GeneratedIdRef" type="xs:string" use="optional">
+							<xs:annotation>
+								<xs:documentation>Reference to the auto generated id used by Visual Studio tooling.</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
 					</xs:complexType>
 				</xs:element>
 				<xs:element name="ServiceGroup">
@@ -623,7 +673,7 @@
 	</xs:complexType>
 	<xs:complexType name="ServiceType">
 		<xs:annotation>
-			<xs:documentation>Base type that defines a Windows Fabric service.</xs:documentation>
+			<xs:documentation>Base type that defines a Microsoft Azure Service Fabric service.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:group ref="PartitionDescriptionGroup"/>
@@ -687,6 +737,7 @@
 											<xs:enumeration value="RequiredDomain"/>
 											<xs:enumeration value="PreferredPrimaryDomain"/>
 											<xs:enumeration value="RequiredDomainDistribution"/>
+											<xs:enumeration value="NonPartiallyPlace"/>
 										</xs:restriction>
 									</xs:simpleType>
 								</xs:attribute>
@@ -972,6 +1023,20 @@
 											<xs:attribute name="IsEnabled" type="xs:boolean" use="optional" default="true"/>
 											<xs:attribute name="PasswordSecret" type="xs:string" use="required"/>
 											<xs:attribute name="PasswordSecretEncrypted" type="xs:boolean" use="optional" default="false"/>
+											<xs:attribute name="X509StoreLocation" use="optional" default="LocalMachine">
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="LocalMachine"/>
+														<xs:enumeration value="CurrentUser"/>
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+											<xs:attribute name="X509StoreName" default="My">
+												<xs:simpleType>
+													<xs:restriction base="xs:string"/>
+												</xs:simpleType>
+											</xs:attribute>
+											<xs:attribute name="X509Thumbprint" type="xs:string"/>
 										</xs:complexType>
 									</xs:element>
 									<xs:element name="MemberOf" minOccurs="0">
@@ -1330,7 +1395,7 @@
 	<!-- ****** Types used by Service Manifest *****-->
 	<xs:complexType name="ServiceManifestType">
 		<xs:annotation>
-			<xs:documentation>Manifest of a packaged Windows Fabric service. A Service Manifest is a unit of deployment and activation. It consists of independently upgradable units of code, configuration and data.</xs:documentation>
+			<xs:documentation>Manifest of a packaged Microsoft Azure Service Fabric service. A Service Manifest is a unit of deployment and activation. It consists of independently upgradable units of code, configuration and data.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="Description" type="xs:string" minOccurs="0">
@@ -1345,7 +1410,7 @@
 			</xs:element>
 			<xs:element name="CodePackage" type="CodePackageType" maxOccurs="unbounded">
 				<xs:annotation>
-					<xs:documentation>Describes the code packages that implements above defined service types. Upon needing to place one of the service types of this service Windows Fabric will activate all of the code packages defined here.</xs:documentation>
+					<xs:documentation>Describes the code packages that implements above defined service types. Upon needing to place one of the service types of this service Microsoft Azure Service Fabric will activate all of the code packages defined here.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ConfigPackage" type="ConfigPackageType" minOccurs="0" maxOccurs="unbounded">
@@ -1452,7 +1517,7 @@
 		</xs:sequence>
 		<xs:attribute name="ServiceTypeName" use="required">
 			<xs:annotation>
-				<xs:documentation>User defined type identifier for a Windows Fabric Service. .e.g QueueType, CalculatorType</xs:documentation>
+				<xs:documentation>User defined type identifier for a Microsoft Azure Service Fabric Service. .e.g QueueType, CalculatorType</xs:documentation>
 			</xs:annotation>
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
@@ -1495,7 +1560,7 @@
 		</xs:sequence>
 		<xs:attribute name="ServiceGroupTypeName" use="required">
 			<xs:annotation>
-				<xs:documentation>User defined type identifier for a Windows Fabric ServiceGgroup, .e.g ActorQueueSGType</xs:documentation>
+				<xs:documentation>User defined type identifier for a Microsoft Azure Service Fabric ServiceGgroup, .e.g ActorQueueSGType</xs:documentation>
 			</xs:annotation>
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
@@ -1528,7 +1593,7 @@
 			</xs:sequence>
 			<xs:attribute name="ServiceTypeName" use="required">
 				<xs:annotation>
-					<xs:documentation>User defined type identifier for a Windows Fabric ServiceGroup Member, .e.g Actor</xs:documentation>
+					<xs:documentation>User defined type identifier for a Microsoft Azure Service Fabric ServiceGroup Member, .e.g Actor</xs:documentation>
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
@@ -1555,6 +1620,7 @@
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>
+					<xs:attribute name="GeneratedId" type="xs:string" use="optional"/>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
@@ -1628,7 +1694,7 @@
 			<xs:extension base="ServiceTypeType">
 				<xs:attribute name="UseImplicitHost" type="xs:boolean" default="false">
 					<xs:annotation>
-						<xs:documentation>Specifies if the service type should be implemented implicitly by Windows Fabric. Implicitly implemented ServiceTypes can be used for activating legacy applications that do not implement Windows Fabric service interfaces. The service type will be registered and services will be hosted by Windows Fabric provided host.</xs:documentation>
+						<xs:documentation>Specifies if the service type should be implemented implicitly by Microsoft Azure Service Fabric. Implicitly implemented ServiceTypes can be used for activating legacy applications that do not implement Microsoft Azure Service Fabric service interfaces. The service type will be registered and services will be hosted by Microsoft Azure Service Fabric provided host.</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
@@ -1690,11 +1756,6 @@
 			<xs:documentation>Describes the resources required by components of this Service Manifest.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="Certificates" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Placeholder for certificate schema.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element name="Endpoints" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Defines endpoints the services need to function properly.</xs:documentation>
@@ -1851,6 +1912,15 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="ContainerHostEntryPointType">
+		<xs:sequence>
+			<!--container image name-->
+			<xs:element name="ImageName" type="xs:string"/>
+			<!--comma delimited list of commands for container-->
+			<xs:element name="Commands" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="FromSource" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="EntryPointDescriptionType">
 		<xs:sequence>
 			<xs:choice>
@@ -1877,6 +1947,7 @@
 					</xs:complexType>
 				</xs:element>
 				<xs:element name="DllHost" type="DllHostEntryPointType"/>
+				<xs:element name="ContainerHost" type="ContainerHostEntryPointType"/>
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
@@ -1908,7 +1979,7 @@
 		<xs:attribute name="CertificateRef"/>
 		<xs:attribute name="Port">
 			<xs:annotation>
-				<xs:documentation>The port will be replaced with a port determined by Windows Fabric after registering with Http.sys or BFE.</xs:documentation>
+				<xs:documentation>The port will be replaced with a port determined by Microsoft Azure Service Fabric after registering with Http.sys or BFE.</xs:documentation>
 			</xs:annotation>
 			<xs:simpleType>
 				<xs:restriction base="xs:int">
@@ -1917,6 +1988,8 @@
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>
+    <xs:attribute name="UriScheme"/>
+    <xs:attribute name="PathSuffix"/>
 	</xs:complexType>
 	<xs:complexType name="LoadMetricType">
 		<xs:attribute name="Name" use="required">
@@ -1926,9 +1999,9 @@
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>
-		<xs:attribute name="DefaultLoad" type="xs:unsignedInt" use="optional" default="0"/>
-		<xs:attribute name="PrimaryDefaultLoad" type="xs:unsignedInt" use="optional" default="0"/>
-		<xs:attribute name="SecondaryDefaultLoad" type="xs:unsignedInt" use="optional" default="0"/>
+		<xs:attribute name="DefaultLoad" type="xs:long" use="optional" default="0"/>
+		<xs:attribute name="PrimaryDefaultLoad" type="xs:long" use="optional" default="0"/>
+		<xs:attribute name="SecondaryDefaultLoad" type="xs:long" use="optional" default="0"/>
 		<xs:attribute name="Weight">
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
@@ -2004,7 +2077,7 @@
 	<!-- ****** Other Global Types *****-->
 	<xs:simpleType name="FabricUri">
 		<xs:annotation>
-			<xs:documentation>A Uri that is used as a stable identifier of services by Windows Fabric Naming system. </xs:documentation>
+			<xs:documentation>A Uri that is used as a stable identifier of services by Microsoft Azure Service Fabric Naming system. </xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:anyURI"/>
 	</xs:simpleType>
@@ -2099,12 +2172,12 @@
 	<!--*********** Following are the internal types that are used for the digested form of application ********************-->
 	<xs:element name="ApplicationInstance" type="ApplicationInstanceType">
 		<xs:annotation>
-			<xs:documentation>Describes an instance of a Windows Fabric application.</xs:documentation>
+			<xs:documentation>Describes an instance of a Microsoft Azure Service Fabric application.</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="ApplicationInstanceType">
 		<xs:annotation>
-			<xs:documentation>Describes an instance of a Windows Fabric application.</xs:documentation>
+			<xs:documentation>Describes an instance of a Microsoft Azure Service Fabric application.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="ApplicationPackageRef">
@@ -2144,6 +2217,7 @@
 				<xs:complexType>
 					<xs:sequence maxOccurs="unbounded">
 						<xs:element name="SecretsCertificate" type="FabricCertificateType" minOccurs="0"/>
+						<xs:element name="EndpointCertificate" type="EndpointCertificateType" minOccurs="0"/>
 					</xs:sequence>
 					<xs:attributeGroup ref="VersionedItemAttrGroup"/>
 				</xs:complexType>
@@ -2225,13 +2299,20 @@
 											<xs:sequence>
 												<xs:element name="Endpoint" type="EndpointType"/>
 												<xs:element name="SecurityAccessPolicy" type="SecurityAccessPolicyType" minOccurs="0"/>
+												<xs:element name="EndpointBindingPolicy" type="EndpointBindingPolicyType" minOccurs="0"/>
 											</xs:sequence>
 										</xs:complexType>
 									</xs:element>
 								</xs:sequence>
 							</xs:complexType>
 						</xs:element>
-						<xs:element name="DigestedCertificates" minOccurs="0"/>
+						<xs:element name="DigestedCertificates" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="EndpointCertificate" type="EndpointCertificateType" minOccurs="0" maxOccurs="unbounded"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
 					</xs:sequence>
 					<xs:attributeGroup ref="VersionedItemAttrGroup"/>
 				</xs:complexType>
@@ -2326,7 +2407,7 @@
 	</xs:complexType>
 	<xs:complexType name="InfrastructureInformationType">
 		<xs:annotation>
-			<xs:documentation>Contains the infrastructure information for this Windows Fabric cluster.</xs:documentation>
+			<xs:documentation>Contains the infrastructure information for this Microsoft Azure Service Fabric cluster.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="NodeList">
@@ -2429,7 +2510,7 @@
 		</xs:attribute>
 		<xs:attribute name="UpgradeEntryPointExe" type="xs:string" use="optional">
 			<xs:annotation>
-				<xs:documentation>Name of the exe used by the upgrade service to upgrade </xs:documentation>
+				<xs:documentation>Name of the exe used by the installer service to upgrade </xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="UpgradeEntryPointExeParameters" type="xs:string" use="optional">
@@ -2439,7 +2520,7 @@
 		</xs:attribute>
 		<xs:attribute name="UndoUpgradeEntryPointExe" type="xs:string" use="optional">
 			<xs:annotation>
-				<xs:documentation>Name of the exe used by the upgrade service to undo the upgrade</xs:documentation>
+				<xs:documentation>Name of the exe used by the installer service to undo the upgrade</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="UndoUpgradeEntryPointExeParameters" type="xs:string" use="optional">
@@ -2457,5 +2538,29 @@
 		<xs:attribute name="NodeName" use="required"/>
 		<xs:attribute name="IPAddressOrFQDN" use="required"/>
 		<xs:attribute name="Port" type="xs:int" use="required"/>
+	</xs:complexType>
+	<!-- Type for the AppInstance Definition file generated by Visual studio tools for application deployment. -->
+	<xs:complexType name="AppInstanceDefinitionType">
+		<xs:sequence>
+			<xs:element name="Parameters">
+				<xs:annotation>
+					<xs:documentation>List of parameters for the applciation as defined in Applciation Manifest and their respective values.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:attributeGroup ref="NameValuePair"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="Name" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>Name of the application to be created.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 </xs:schema>

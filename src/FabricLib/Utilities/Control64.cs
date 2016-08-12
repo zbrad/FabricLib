@@ -12,25 +12,9 @@ using System.Threading.Tasks;
 namespace ZBrad.FabricLib.Utilities
 {
     /// <summary>
-    /// upgrade monitor options
-    /// </summary>
-    public enum UpgradeMonitor
-    {
-        /// <summary>
-        /// auto upgrade
-        /// </summary>
-        Auto,
-
-        /// <summary>
-        /// manual upgrade
-        /// </summary>
-        Manual
-    }
-
-    /// <summary>
     /// Fabric Client control methods for 64-bit
     /// </summary>
-    public class Control64
+    public class Control64 : IDisposable
     {
         static NLog.Logger log = NLog.LogManager.GetCurrentClassLogger();
         static Dictionary<string, string> emptyArgs = new Dictionary<string, string>();
@@ -50,7 +34,7 @@ namespace ZBrad.FabricLib.Utilities
         /// </summary>
         /// <param name="clusterSettings">cluster settings to use</param>
         /// <param name="packageSettings">package settings to use</param>
-        public Control64(ClusterSettings clusterSettings, PackageSettings packageSettings)
+        public Control64(ClusterSettings clusterSettings, Package packageSettings)
         {
             if (clusterSettings != null)
             {
@@ -94,100 +78,106 @@ namespace ZBrad.FabricLib.Utilities
         /// test if fabric cluster is running
         /// </summary>
         /// <returns>true if running</returns>
-        #pragma warning disable 612,618
-        public bool IsClusterRunning
+        public async Task ValidateClusterRunning()
         {
-            get
+            this.LastException = null;
+
+            if (this.IsOneBoxStopped)
+                throw new ControlException("OneBox is stopped");
+
+            if (fc == null)
+                fc = getClient();
+
+            await retryOp(async () =>
             {
-                this.LastException = null;
-
-                if (this.IsOneBoxStopped)
-                {
-                    return false;
-                }
-
-
-                if (this.Control.Cluster.Data.ContainsKey("Thumbprint") && this.control.Cluster.Data.ContainsKey("CommonName"))
-                {
-                    X509Credentials xc = new X509Credentials();
-
-                    string shortThumb = this.Control.Cluster.Data["Thumbprint"].Replace(" ", "").ToUpper();
-                    X509Store store = new X509Store(StoreLocation.CurrentUser);
-                    store.Open(OpenFlags.ReadOnly);
-                    X509Certificate2Collection cc = store.Certificates.Find(X509FindType.FindByThumbprint, shortThumb, true);
-                    if (cc == null || cc.Count == 0)
-                    {
-                        log.Error("Could not find certificate by thumbprint");
-                        return false;
-                    }
-
-                    X509Certificate2 cert = cc[0];
-                    xc.StoreLocation = store.Location;
-                    xc.FindType = X509FindType.FindByThumbprint;
-                    xc.FindValue = cert.Thumbprint;
-                    xc.AllowedCommonNames.Add(cert.FriendlyName);
-                    xc.ProtectionLevel = ProtectionLevel.EncryptAndSign;
-
-                    this.fc = new FabricClient(xc, this.Control.Cluster.Connection);
-                }
-                else
-                {
-                    this.fc = new FabricClient(this.Control.Cluster.Connection);
-                }
-
-                int retryLimit = Defaults.WaitRetryLimit;
-                while (retryLimit-- > 0)
-                {
-                    try
-                    {
-                        bool nameExistsResult = this.fc.PropertyManager.NameExistsAsync(
-                            new Uri(Defaults.ApplicationNamespace + "/Any"),
-                            Defaults.WaitDelay,
-                            CancellationToken.None).Result;
-                        if (!nameExistsResult)
-                        {
-                            // this is success!
-                            return true;
-                        }
-
-                        return true;
-                    }
-                    catch (AggregateException ae)
-                    {
-                        this.LastException = ae;
-                        if (!this.IsRetry("NameExists", ae.InnerException))
-                        {
-                            return false;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        this.LastException = e;
-                        if (!this.IsRetry("NameExists", e))
-                        {
-                            return false;
-                        }
-                    }
-
-                    log.Info("FabricClient failed to connect, retrying...");
-                    Task.Delay(Defaults.WaitDelay).Wait();
-                }
-
-                log.Error("FabricClient connect failed too many times");
-                return false;
-            }
+                var result = await this.fc.PropertyManager.NameExistsAsync(
+                    new Uri(Defaults.ApplicationNamespace + "/Any"),
+                    Defaults.WaitDelay,
+                    CancellationToken.None);
+                return true;
+            });
         }
 
-        private bool IsOneBoxStopped
+        async Task retryOp(Func<Task> f)
+        {
+            var retryLimit = Defaults.WaitRetryLimit;
+            while (retryLimit-- > 0)
+            {
+                try
+                {
+                    await f();
+                    return;
+                }
+                catch (TimeoutException)
+                {
+                    // eat timeouts
+                }
+
+                await Task.Delay(Defaults.WaitDelay);
+            }
+
+            log.Error("retry failed too many times");
+        }
+
+        async Task<bool> retryOp(Func<Task<bool>> f)
+        {
+            var retryLimit = Defaults.WaitRetryLimit;
+            while (retryLimit-- > 0)
+            {
+                try
+                {
+                    if (await f())
+                        return true;
+                }
+                catch (TimeoutException)
+                {
+                    // eat timeouts
+                }
+
+                await Task.Delay(Defaults.WaitDelay);
+            }
+
+            log.Error("retry failed too many times");
+            return false;
+        }
+
+        FabricClient getClient()
+        {
+            if (this.Control.Cluster.Data.ContainsKey("Thumbprint") && this.control.Cluster.Data.ContainsKey("CommonName"))
+            {
+                var xc = getCertificate();
+                return new FabricClient(xc, this.Control.Cluster.Connection);
+            }
+
+            return new FabricClient(this.Control.Cluster.Connection);
+        }
+
+        X509Credentials getCertificate()
+        {
+            X509Credentials xc = new X509Credentials();
+
+            string shortThumb = this.Control.Cluster.Data["Thumbprint"].Replace(" ", "").ToUpper();
+            X509Store store = new X509Store(StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+            X509Certificate2Collection cc = store.Certificates.Find(X509FindType.FindByThumbprint, shortThumb, true);
+            if (cc == null || cc.Count == 0)
+                throw new ControlException("certificate not found");
+
+            X509Certificate2 cert = cc[0];
+            xc.StoreLocation = store.Location;
+            xc.FindType = X509FindType.FindByThumbprint;
+            xc.FindValue = cert.Thumbprint;
+            xc.RemoteCommonNames.Add(cert.FriendlyName);
+            xc.ProtectionLevel = ProtectionLevel.EncryptAndSign;
+
+            return xc;
+        }
+
+        bool IsOneBoxStopped
         {
             get
             {
-                if (this.Control.Cluster.ClusterType == ClusterType.OneBox && !this.control.IsHostRunning)
-                {
-                    return true;
-                }
-
-                return false;
+                return this.Control.Cluster.ClusterType == ClusterType.OneBox && !this.control.IsHostRunning;
             }
         }
 
@@ -225,246 +215,86 @@ namespace ZBrad.FabricLib.Utilities
         /// try to provision the application
         /// </summary>
         /// <returns>true if successful</returns>
-        public bool TryApplicationProvision()
+        public async Task Provision()
         {
             this.LastException = null;
 
-            if (!this.IsClusterRunning)
+            await ValidateClusterRunning();
+
+            string imagePath = Defaults.ProvisionPrefix + "\\" + this.control.Package.ApplicationTypeName;
+            log.Info("ProvisionApplication with path={0}", imagePath);
+
+            await retryOp(async () =>
             {
-                log.Error("Cluster is not running");
-                return false;
-            }
+                await this.fc.ApplicationManager
+                  .ProvisionApplicationAsync(imagePath, Defaults.WaitDelay, CancellationToken.None);
 
-            int limit = Defaults.WaitRetryLimit;
-            while (limit-- > 0)
-            {
-                string imagePath = Defaults.ProvisionPrefix + "\\" + this.control.Package.ApplicationTypeName;
-                try
-                {
-                    log.Info("ProvisionApplication with path={0}", imagePath);
-                    this.fc.ApplicationManager
-                      .ProvisionApplicationAsync(imagePath, Defaults.WaitDelay, CancellationToken.None)
-                      .Wait();
-
-                    log.Info("Application provision successful");
-                    return true;
-                }
-                catch (AggregateException ae)
-                {
-                    this.LastException = ae;
-                    if (!this.IsRetry("Provision", ae.InnerException))
-                    {
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.LastException = e;
-
-                    if (!this.IsRetry("Provision", e))
-                    {
-                        return false;
-                    }
-                }
-
-                log.Info("Application provision failed, retrying...");
-                Task.Delay(Defaults.WaitDelay).Wait();
-            }
-
-            log.Error("Provision failed too many times");
-            return false;
+                log.Info("Application provision successful");
+            });
         }
 
         /// <summary>
         /// try to un-provision application
         /// </summary>
         /// <returns>true if successful</returns>
-        public bool TryApplicationUnprovision()
+        public async Task Unprovision()
         {
             this.LastException = null;
 
-            if (!this.IsClusterRunning)
+            await ValidateClusterRunning();
+            ValidatePackage(control.Package);
+
+            await retryOp(async () =>
             {
-                log.Error("Cluster is not running");
-                return false;
-            }
+                await this.fc.ApplicationManager
+                  .UnprovisionApplicationAsync(this.control.Package.ApplicationTypeName, this.control.Package.ApplicationVersion, Defaults.WaitDelay, CancellationToken.None);
 
-            if (string.IsNullOrEmpty(this.control.Package.ApplicationTypeName) || string.IsNullOrEmpty(this.control.Package.ApplicationVersion))
-            {
-                return false;
-            }
-
-            int limit = Defaults.WaitRetryLimit;
-            while (limit-- > 0)
-            {
-                try
-                {
-                    this.fc.ApplicationManager
-                      .UnprovisionApplicationAsync(this.control.Package.ApplicationTypeName, this.control.Package.ApplicationVersion, Defaults.WaitDelay, CancellationToken.None)
-                      .Wait();
-
-                    log.Info("Application unprovision successful");
-                    return true;
-                }
-                catch (AggregateException ae)
-                {
-                    this.LastException = ae;
-
-                    if (!this.IsRetry("Unprovision", ae.InnerException))
-                    {
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.LastException = e;
-
-                    if (!this.IsRetry("Unprovision", e))
-                    {
-                        return false;
-                    }
-                }
-
-                log.Info("Application unprovision failed, retrying...");
-                Task.Delay(Defaults.WaitDelay).Wait();
-            }
-
-            log.Error("Unprovision failed too many times");
-            return false;
+                log.Info("Application unprovision successful");
+            });
         }
 
         /// <summary>
         /// try to create application
         /// </summary>
         /// <returns>true if successful</returns>
-        public bool TryApplicationCreate()
+        public async Task ApplicationCreate()
         {
             this.LastException = null;
 
-            if (!this.IsClusterRunning)
-            {
-                return false;
-            }
-
-            if (this.control.Package.ApplicationAddress == null)
-            {
-                log.Error("ApplicationAddress is null");
-                return false;
-            }
-
-            if (this.control.Package.ApplicationTypeName == null)
-            {
-                log.Error("ApplicationTypeName is null");
-                return false;
-            }
-
-            if (this.control.Package.ApplicationVersion == null)
-            {
-                log.Error("ApplicationVersion is null");
-                return false;
-            }
+            await ValidateClusterRunning();
+            ValidatePackage(control.Package);
 
             NameValueCollection nvc = GetApplicationParameters(this.control.Package);
             ApplicationDescription d = new ApplicationDescription(new Uri(this.control.Package.ApplicationAddress), this.control.Package.ApplicationTypeName, this.control.Package.ApplicationVersion, nvc);
 
-            int retryLimit = Defaults.WaitRetryLimit;
-            while (retryLimit-- > 0)
+            await retryOp(async () =>
             {
-                try
-                {
-                    this.fc.ApplicationManager
-                      .CreateApplicationAsync(d, Defaults.WaitDelay, CancellationToken.None)
-                      .Wait();
+                await this.fc.ApplicationManager
+                  .CreateApplicationAsync(d, Defaults.WaitDelay, CancellationToken.None);
 
-                    log.Info("Application create successful");
-                    return true;
-                }
-                catch (AggregateException ae)
-                {
-                    this.LastException = ae;
-
-                    if (!this.IsRetry("CreateApplication", ae.InnerException))
-                    {
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.LastException = e;
-
-                    if (!this.IsRetry("CreateApplication", e))
-                    {
-                        return false;
-                    }
-                }
-
-                log.Info("Application create failed, retrying...");
-                Task.Delay(Defaults.WaitDelay).Wait();
-            }
-
-            log.Error("CreateApplication failed too many times");
-            return false;
+                log.Info("Application create successful");
+                return true;
+            });
         }
 
         /// <summary>
         /// try to delete application
         /// </summary>
         /// <returns>true if successful</returns>
-        public bool TryApplicationDelete()
+        public async Task ApplicationDelete()
         {
-            this.LastException = null;
+            ValidatePackage(control.Package);
+            await ValidateClusterRunning();
 
-            if (!this.IsClusterRunning)
+            await retryOp(async () =>
             {
-                log.Error("Cluster is not running");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(this.control.Package.ApplicationAddress))
-            {
-                log.Error("Could not find application address in package settings");
-                return false;
-            }
-
-            int limit = Defaults.WaitRetryLimit;
-            while (limit-- > 0)
-            {
-                try
-                {
-                    Task t = this.fc.ApplicationManager.DeleteApplicationAsync(
+                await this.fc.ApplicationManager.DeleteApplicationAsync(
                         new Uri(this.control.Package.ApplicationAddress),
                         Defaults.WaitDelay,
                         CancellationToken.None);
-                    t.Wait();
 
-                    log.Info("Application delete successful");
-                    return true;
-                }
-                catch (AggregateException ae)
-                {
-                    this.LastException = ae;
-
-                    if (!this.IsRetry("DeleteApplication", ae.InnerException))
-                    {
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.LastException = e;
-
-                    if (!this.IsRetry("DeleteApplication", e))
-                    {
-                        return false;
-                    }
-                }
-
-                log.Info("Application delete failed, retrying...");
-                Task.Delay(Defaults.WaitDelay).Wait();
-            }
-
-            log.Error("Application delete failed too many times");
-            return false;
+                log.Info("Application delete successful");
+            });
         }
 
         /// <summary>
@@ -476,278 +306,169 @@ namespace ZBrad.FabricLib.Utilities
         /// <param name="mode">monitor mode</param>
         /// <param name="timeout">timeout for upgrade start</param>
         /// <returns>true if upgrade started</returns>
-        public bool TryApplicationUpgrade(PackageSettings fromPackage, PackageSettings toPackage, bool isRolling, UpgradeMonitor mode, TimeSpan timeout)
+        public async Task<bool> TryUpgrade(Package fromPackage, Package toPackage, UpgradeOptions options)
         {
             this.LastException = null;
-
             try
             {
-                ApplicationUpgradeDescription upgradeDescription = new ApplicationUpgradeDescription();
+                var upgradeDescription = createUpgrade(fromPackage, toPackage);
+                upgradeDescription.UpgradePolicyDescription = options.CreatePolicy();
 
-                // we use the "from" package's address
-                upgradeDescription.ApplicationName = new Uri(fromPackage.ApplicationAddress);
-
-                // we use the "to" package's version
-                upgradeDescription.TargetApplicationTypeVersion = toPackage.ApplicationVersion;
-
-                // split parameters if any are specified
-                NameValueCollection upgradeParams = Control64.GetApplicationParameters(toPackage);
-                if (upgradeParams != null && upgradeParams.Count > 0)
-                {
-                    upgradeDescription.ApplicationParameters.Add(upgradeParams);
-                }
-
-                RollingUpgradePolicyDescription policy = new RollingUpgradePolicyDescription();
-                policy.ForceRestart = true;
-                policy.UpgradeMode = RollingUpgradeMode.UnmonitoredManual;
-
-                if (isRolling)
-                {
-                    switch (mode)
-                    {
-                        case UpgradeMonitor.Auto:
-                            policy.UpgradeMode = RollingUpgradeMode.UnmonitoredAuto;
-                            break;
-                        case UpgradeMonitor.Manual:
-                            policy.UpgradeMode = RollingUpgradeMode.UnmonitoredManual;
-                            break;
-                    }
-
-                    policy.UpgradeReplicaSetCheckTimeout = timeout;
-                }
-
-                upgradeDescription.UpgradePolicyDescription = policy;
-                this.fc.ApplicationManager.UpgradeApplicationAsync(upgradeDescription, Defaults.UpgradeTimeout, CancellationToken.None).Wait();
-
+                await this.fc.ApplicationManager.UpgradeApplicationAsync(upgradeDescription, Defaults.UpgradeTimeout, CancellationToken.None);
                 return true;
             }
             catch (Exception e)
             {
-                this.LastException = e;
+                log.Error("UpgradeApplication failed, err={0}", e.Message);
+                return false;
+            }
+        }
 
-                if (e is AggregateException)
-                {
-                    if (e is FabricException)
-                    {
-                        log.Error("Upgrade failed: " + e.InnerException.Message);
-                        return false;
-                    }
+        ApplicationUpgradeDescription createUpgrade(Package fromPackage, Package toPackage)
+        {
+            var upgradeDescription = new ApplicationUpgradeDescription();
 
-                    log.Error("UpgradeApplication Aggregate failure, err={0}", e.InnerException.Message);
-                }
-                else
-                {
-                    log.Error("UpgradeApplication failed, err={0}", e.Message);
-                }
+            // we use the "from" package's address
+            upgradeDescription.ApplicationName = new Uri(fromPackage.ApplicationAddress);
+
+            // we use the "to" package's version
+            upgradeDescription.TargetApplicationTypeVersion = toPackage.ApplicationVersion;
+
+            // split parameters if any are specified
+            NameValueCollection upgradeParams = Control64.GetApplicationParameters(toPackage);
+            if (upgradeParams != null && upgradeParams.Count > 0)
+            {
+                upgradeDescription.ApplicationParameters.Add(upgradeParams);
             }
 
-            return false;
+            return upgradeDescription;
         }
 
         /// <summary>
         /// try to create service
         /// </summary>
-        /// <returns>true if successful</returns>
-        public bool TryServiceCreate()
+        public async Task ServiceCreate()
         {
-            this.LastException = null;
+            ValidatePackage(control.Package);
+            await ValidateClusterRunning();
 
-            if (!this.IsClusterRunning)
+            ServiceDescription sd;
+            if (!this.TryCreateServiceDescription(out sd))
+                throw new PackageException("cloud not create service description for package");
+
+            await retryOp(async () =>
             {
-                log.Error("Cluster is not running");
-                return false;
-            }
+                await this.fc.ServiceManager.CreateServiceAsync(sd, Defaults.WaitDelay, CancellationToken.None);
+                log.Info("CreateService succeeded");
+                return true;
+            });
+        }
 
-            if (this.control.Package.ApplicationAddress == null)
-            {
-                log.Error("ApplicationAddress is null");
-                return false;
-            }
+        public static void ValidatePackage(Package package)
+        {
+            if (package.ApplicationAddress == null)
+                throw new PackageException("ApplicationAddress is null");
 
-            if (this.control.Package.ServiceAddress == null)
-            {
-                log.Error("ServiceAddress is null");
-                return false;
-            }
+            if (package.ServiceAddress == null)
+                throw new PackageException("ServiceAddress is null");
 
-            if (this.control.Package.ServiceType == null)
-            {
-                log.Error("ServiceType is null");
-                return false;
-            }
-
-            int limit = Defaults.WaitRetryLimit;
-            while (limit-- > 0)
-            {
-                try
-                {
-                    ServiceDescription sd;
-                    if (!this.TryCreateServiceDescription(out sd))
-                    {
-                        return false;
-                    }
-
-                    this.fc.ServiceManager.CreateServiceAsync(sd, Defaults.WaitDelay, CancellationToken.None).Wait();
-                    log.Info("CreateService succeeded");
-                    return true;
-                }
-                catch (AggregateException ae)
-                {
-                    this.LastException = ae;
-
-                    if (!this.IsRetry("CreateService", ae.InnerException))
-                    {
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.LastException = e;
-
-                    if (!this.IsRetry("CreateService", e))
-                    {
-                        return false;
-                    }
-                }
-
-                log.Info("Application service create failed, retrying...");
-                Task.Delay(Defaults.WaitDelay).Wait();
-            }
-
-            return false;
+            if (package.ServiceType == null)
+                throw new PackageException("ServiceType is null");
         }
 
         /// <summary>
         /// try to delete service
         /// </summary>
         /// <returns>true if successful</returns>
-        public bool TryServiceDelete()
+        public async Task ServiceDelete()
         {
-            this.LastException = null;
+            ValidatePackage(control.Package);
+            await ValidateClusterRunning();
 
-            if (!this.IsClusterRunning)
-            {
-                log.Error("Cluster is not running");
-                return false;
-            }
+            string address = this.control.Package.ServiceAddress;
+            Uri serviceUri = new Uri(address);
 
-            if (string.IsNullOrEmpty(this.control.Package.ServiceAddress))
-            {
-                log.Error("ServiceAddress not found in package settings");
-                return false;
-            }
-
-            int limit = Defaults.WaitRetryLimit;
-            while (limit-- > 0)
-            {
-                try
+            await retryOp(async () =>
                 {
-                    string address = this.control.Package.ServiceAddress;
-                    Uri serviceUri = new Uri(address);
-                    this.fc.ServiceManager.DeleteServiceAsync(serviceUri, Defaults.WaitDelay, CancellationToken.None)
-                      .Wait();
+                    await this.fc.ServiceManager.DeleteServiceAsync(serviceUri, Defaults.WaitDelay, CancellationToken.None);
                     log.Info("DeleteService succeeded");
-                    return true;
-                }
-                catch (AggregateException ae)
-                {
-                    this.LastException = ae;
-
-                    if (!this.IsRetry("DeleteService", ae.InnerException))
-                    {
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.LastException = e;
-
-                    if (!this.IsRetry("DeleteService", e))
-                    {
-                        return false;
-                    }
-                }
-
-                log.Info("Application service delete failed, retrying...");
-                Task.Delay(Defaults.WaitDelay).Wait();
-            }
-
-            return false;
+                });
         }
 
         /// <summary>
         /// try to fully create current package
         /// </summary>
         /// <returns>true if successful</returns>
-        public bool TryPackageCreate()
+        public async Task PackageCreate()
         {
-            this.LastException = null;
+            ValidatePackage(control.Package);
+            await ValidateClusterRunning();
 
-            if (!this.IsClusterRunning)
-            {
-                return false;
-            }
-
-            if (!this.TryApplicationProvision())
-            {
-                log.Error("Provision application failed");
-                return false;
-            }
-
-            if (!this.TryApplicationCreate())
-            {
-                log.Error("Create application failed");
-                return false;
-            }
-
-            if (!this.TryServiceCreate())
-            {
-                log.Error("Create service failed");
-                return false;
-            }
+            await Provision();
+            await ApplicationCreate();
+            await ServiceCreate();
 
             log.Info("PackageCreate succeeded");
-            return true;
         }
 
         /// <summary>
         /// try to fully delete current package
         /// </summary>
         /// <returns>true if successful</returns>
-        public bool TryPackageDelete()
+        public async Task PackageDelete()
         {
-            this.LastException = null;
+            ValidatePackage(control.Package);
+            await ValidateClusterRunning();
 
-            if (!this.IsClusterRunning)
+            if (await ServiceExists())
             {
-                log.Error("Cluster is not running");
+                await ServiceDelete();
+                await ApplicationDelete();
+                await Unprovision();
+                return;
+            }
+
+            if (await ApplicationExists())
+            {
+                await ApplicationDelete();
+                await Unprovision();
+                return;
+            }
+
+            if (await ProvisionExists())
+                await Unprovision();
+
+            log.Info("PackageDelete succeeded");
+        }
+
+        async Task<bool> ServiceExists()
+        {           
+            var app = new Uri(control.Package.ApplicationAddress);
+            var svc = new Uri(control.Package.ServiceAddress);
+            var list = await fc.QueryManager.GetServiceListAsync(app, svc);
+            return list != null && list.Count > 0;
+        }
+
+        async Task<bool> ApplicationExists()
+        {
+            var app = new Uri(control.Package.ApplicationAddress);
+            var list = await fc.QueryManager.GetApplicationListAsync(app);
+            return list != null && list.Count > 0;
+        }
+
+        async Task<bool> ProvisionExists()
+        {
+            var list = await fc.QueryManager.GetApplicationTypeListAsync(control.Package.ApplicationTypeName);
+            if (list == null || list.Count == 0)
                 return false;
-            }
 
-            bool hasError = false;
-            if (!this.TryServiceDelete())
+            foreach (var p in list)
             {
-                log.Error("delete service failed");
-                hasError = true;
+                if (p.ApplicationTypeName == control.Package.ApplicationTypeName && p.ApplicationTypeVersion == control.Package.ApplicationVersion)
+                    return true;
             }
 
-            if (!this.TryApplicationDelete())
-            {
-                log.Error("delete application failed");
-                hasError = true;
-            }
-
-            if (!this.TryApplicationUnprovision())
-            {
-                log.Error("unprovision failed");
-                hasError = true;
-            }
-
-            if (hasError)
-                log.Info("PackageDelete completed with errors");
-            else
-                log.Info("PackageDelete succeeded");
-            return true;
+            return false;
         }
 
         /// <summary>
@@ -756,36 +477,16 @@ namespace ZBrad.FabricLib.Utilities
         /// <param name="instance">the instance to use</param>
         /// <param name="status">the current status</param>
         /// <returns>true if retrieved</returns>
-        public bool TryGetStatus(ApplicationInstance instance, out string status)
+        public async Task<string> GetStatus(ApplicationInstance instance)
         {
-            status = null;
+            ValidatePackage(control.Package);
+            await ValidateClusterRunning();
 
-            if (!this.IsClusterRunning)
-            {
-                log.Error("Cluster is not running");
-                return false;
-            }
+            var list = await this.fc.QueryManager.GetApplicationListAsync(instance.Name);
+            if (list == null && list.Count == 0)
+                return "instance not found";
 
-            try
-            {
-                ApplicationList list = this.fc.QueryManager.GetApplicationListAsync(instance.Name).Result;
-                if (list != null && list.Count > 0)
-                {
-                    Application a = list[0];
-                    status = a.ApplicationStatus.ToString();
-                    return true;
-                }
-            }
-            catch (AggregateException ae)
-            {
-                log.Error("GetApplicationList failed, exception: {0}", ae.InnerException.Message);
-            }
-            catch (Exception e)
-            {
-                log.Error("GetApplicationList failed, exception: {0}", e.Message);
-            }
-
-            return false;
+            return list[0].ApplicationStatus.ToString();
         }
 
         /// <summary>
@@ -793,45 +494,27 @@ namespace ZBrad.FabricLib.Utilities
         /// </summary>
         /// <param name="instances">the instance list</param>
         /// <returns>true if successful</returns>
-        public bool TryGetApplicationInstances(out List<ApplicationInstance> instances)
+        public async Task<List<ApplicationInstance>> GetApplicationInstances()
         {
-            instances = null;
+            await ValidateClusterRunning();
 
-            if (!this.IsClusterRunning)
-            {
-                log.Error("Cluster is not running");
-                return false;
-            }
+            var list = await this.fc.QueryManager.GetApplicationListAsync(null, Defaults.WaitDelay, CancellationToken.None);
+            var instances = new List<ApplicationInstance>();
+            foreach (Application a in list)
+               instances.Add(new ApplicationInstance(a.ApplicationName, a.ApplicationTypeName, a.ApplicationTypeVersion, a.ApplicationStatus.ToString()));
 
-            try
-            {
-                ApplicationList list = this.fc.QueryManager.GetApplicationListAsync(null, Defaults.WaitDelay, CancellationToken.None).Result;
-                instances = new List<ApplicationInstance>();
-                foreach (Application a in list)
-                {
-                    instances.Add(new ApplicationInstance(a.ApplicationName, a.ApplicationTypeName, a.ApplicationTypeVersion, a.ApplicationStatus.ToString()));
-                }
+            if (instances.Count == 0)
+                return null;
 
-                return true;
-            }
-            catch (AggregateException ae)
-            {
-                log.Error("GetApplicationList failed, exception: {0}", ae.InnerException.Message);
-            }
-            catch (Exception e)
-            {
-                log.Error("GetApplicationList failed, exception: {0}", e.Message);
-            }
-
-            return false;
+            return instances;
         }
 
-        static NameValueCollection GetApplicationParameters(PackageSettings package)
+        static NameValueCollection GetApplicationParameters(Package package)
         {
             NameValueCollection nvc = new NameValueCollection();
             if (package.ApplicationParameters != null && !string.IsNullOrWhiteSpace(package.ApplicationParameters))
             {
-                string[] values = package.ApplicationParameters.Split(PackageSettings.ApplicationParameterSplitChar);
+                string[] values = package.ApplicationParameters.Split(Package.ApplicationParameterSplitChar);
                 for (int i = 0; i < values.Length; i++)
                 {
                     string[] nv = values[i].Split('=');
@@ -845,7 +528,7 @@ namespace ZBrad.FabricLib.Utilities
             return nvc;
         }
 
-        private bool TryCreatePartitionDescription(out PartitionSchemeDescription psd)
+        bool TryCreatePartitionDescription(out PartitionSchemeDescription psd)
         {
             psd = null;
 
@@ -866,7 +549,7 @@ namespace ZBrad.FabricLib.Utilities
                     return false;
                 }
 
-                string[] names = nameListValue.Split(PackageSettings.NamedPartitionSplitChar);
+                string[] names = nameListValue.Split(Package.NamedPartitionSplitChar);
                 for (int i = 0; i < names.Length; i++)
                 {
                     d.PartitionNames.Add(names[i]);
@@ -901,7 +584,7 @@ namespace ZBrad.FabricLib.Utilities
             return false;
         }
 
-        private bool TryCreateStatelessServiceDescription(out StatelessServiceDescription sd)
+        bool TryCreateStatelessServiceDescription(out StatelessServiceDescription sd)
         {
             sd = null;
 
@@ -949,7 +632,7 @@ namespace ZBrad.FabricLib.Utilities
             }
         }
 
-        private bool TryGetData(string name, out int value)
+        bool TryGetData(string name, out int value)
         {
             value = 0;
             string s;
@@ -968,7 +651,7 @@ namespace ZBrad.FabricLib.Utilities
             return true;
         }
 
-        private bool TryGetData(string name, out long value)
+        bool TryGetData(string name, out long value)
         {
             value = 0;
             string s;
@@ -987,7 +670,7 @@ namespace ZBrad.FabricLib.Utilities
             return true;
         }
 
-        private bool TryCreateStatefulServiceDescription(out StatefulServiceDescription sd)
+        bool TryCreateStatefulServiceDescription(out StatefulServiceDescription sd)
         {
             sd = null;
             try
@@ -1038,7 +721,7 @@ namespace ZBrad.FabricLib.Utilities
             }
         }
 
-        private bool TryCreateServiceDescription(out ServiceDescription sd)
+        bool TryCreateServiceDescription(out ServiceDescription sd)
         {
             sd = null;
             bool result = false;
@@ -1060,65 +743,29 @@ namespace ZBrad.FabricLib.Utilities
             return result;
         }
 
-        private bool TryEnumNames(List<Uri> list, Uri uri, NameEnumerationResult result)
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
         {
-            bool hasResult = false;
-            try
+            if (!disposedValue)
             {
-                this.fc.PropertyManager.EnumerateSubNamesAsync(uri, result, true).ContinueWith((t) =>
-                    {
-                        if (t.Exception != null)
-                        {
-                            if (t.Exception is AggregateException)
-                            {
-                                log.Error("EnumerateSubNames failed, exception: {0}", t.Exception.InnerException.Message);
-                            }
-                            else
-                            {
-                                log.Error("EnumerateSubNames failed, exception: {0}", t.Exception.Message);
-                            }
-                        }
-                        else
-                        {
-                            list.AddRange(t.Result);
-                            if (t.Result.HasMoreData)
-                            {
-                                this.TryEnumNames(list, uri, t.Result);
-                            }
-
-                            hasResult = true;
-                        }
-                    }).Wait();
-            }
-            catch (AggregateException ae)
-            {
-                log.Error("EnumerateSubNames failed, exception: {0}", ae.InnerException.Message);
-            }
-            catch (Exception e)
-            {
-                log.Error("EnumerateSubNames failed, exception: {0}", e.Message);
-            }
-
-            return hasResult;
-        }
-
-        private bool IsRetry(string function, Exception e)
-        {
-            // if anything other than timeout, fail now
-            if (!(e is System.TimeoutException))
-            {
-                if (this.IsOneBoxStopped)
+                if (disposing)
                 {
-                    log.Error("{0} failed: Host has stopped", function);
-                    return false;
+                    if (fc != null)
+                        fc.Dispose();
+                    fc = null;
                 }
 
-                log.Error("{0} failed: {1}", function, e.Message);
-                return false;
+                disposedValue = true;
             }
-
-            log.Info("{0} failed: {1}", function, e.Message);
-            return true;
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        #endregion
     }
 }

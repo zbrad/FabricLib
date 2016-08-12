@@ -37,7 +37,7 @@ namespace ZBrad.FabricLib.Utilities
     /// <summary>
     /// class contains the package settings
     /// </summary>
-    public class PackageSettings
+    public class Package
     {
         /// <summary>
         /// the split character used to split and join application parameter settings
@@ -314,12 +314,12 @@ namespace ZBrad.FabricLib.Utilities
         }
 
         /// <summary>
-        /// try to create a new <see cref="PackageSettings"/>
+        /// try to create a new <see cref="Package"/>
         /// </summary>
         /// <param name="appPath">path to load application manifest</param>
         /// <param name="packageSettings">the new package settings</param>
         /// <returns>true if successful</returns>
-        public static bool TryCreate(string appPath, out PackageSettings packageSettings)
+        public static bool TryCreate(string appPath, out Package packageSettings)
         {
             packageSettings = null;
 
@@ -328,19 +328,19 @@ namespace ZBrad.FabricLib.Utilities
                 return false;
             }
 
-            packageSettings = new PackageSettings();
+            packageSettings = new Package();
             packageSettings.data[InputPath] = appPath;
 
             return packageSettings.IsValidForCreate();
         }
 
         /// <summary>
-        /// try to create a new <see cref="PackageSettings"/>
+        /// try to create a new <see cref="Package"/>
         /// </summary>
         /// <param name="args">arguments to use</param>
         /// <param name="packageSettings">the new package settings</param>
         /// <returns>true if successful</returns>
-        public static bool TryCreate(string[] args, out PackageSettings packageSettings)
+        public static bool TryCreate(string[] args, out Package packageSettings)
         {
             packageSettings = null;
 
@@ -349,7 +349,7 @@ namespace ZBrad.FabricLib.Utilities
                 return false;
             }
 
-            packageSettings = new PackageSettings();
+            packageSettings = new Package();
             packageSettings.InitDefs(args);
 
             return true;
@@ -587,27 +587,27 @@ namespace ZBrad.FabricLib.Utilities
                 // else we may need fill, so far we know how to do 2
                 switch (k)
                 {
-                    case PackageSettings.AppNamespace:
+                    case Package.AppNamespace:
                         string appNs = GetAppNamespace(dest, source);
                         if (appNs != null)
                         {
-                            dest[PackageSettings.AppNamespace] = appNs;
+                            dest[Package.AppNamespace] = appNs;
                         }
 
                         break;
-                    case PackageSettings.AppAddress:
+                    case Package.AppAddress:
                         string appAddress = GetAppAddress(dest, source);
                         if (appAddress != null)
                         {
-                            dest[PackageSettings.AppAddress] = appAddress;
+                            dest[Package.AppAddress] = appAddress;
                         }
 
                         break;
-                    case PackageSettings.SvcAddress:
+                    case Package.SvcAddress:
                         string svcAddress = GetSvcAddress(dest, source);
                         if (svcAddress != null)
                         {
-                            dest[PackageSettings.SvcAddress] = svcAddress;
+                            dest[Package.SvcAddress] = svcAddress;
                         }
 
                         break;
@@ -659,7 +659,7 @@ namespace ZBrad.FabricLib.Utilities
                 return;
             }
 
-            if (sst.NamedPartition != null && sst.NamedPartition.Partition != null && sst.NamedPartition.Partition.Length > 0)
+            if (sst.NamedPartition != null && sst.NamedPartition.Partition != null && sst.NamedPartition.Partition.Count > 0)
             {
                 xml["PartitionNamed"] = "true";
                 StringBuilder sb = new StringBuilder();
@@ -668,7 +668,7 @@ namespace ZBrad.FabricLib.Utilities
                 {
                     if (once)
                     {
-                        sb.Append(PackageSettings.NamedPartitionSplitChar);
+                        sb.Append(Package.NamedPartitionSplitChar);
                     }
 
                     sb.Append(pp.Name);
@@ -706,7 +706,7 @@ namespace ZBrad.FabricLib.Utilities
             xml[AppName] = appMan.ApplicationTypeName;
             xml[AppVersion] = appMan.ApplicationTypeVersion;
 
-            if (appMan.Parameters != null && appMan.Parameters.Length > 0)
+            if (appMan.Parameters != null && appMan.Parameters.Count > 0)
             {
                 bool paramOnce = false;
                 StringBuilder sb = new StringBuilder();
@@ -714,7 +714,7 @@ namespace ZBrad.FabricLib.Utilities
                 {
                     if (paramOnce)
                     {
-                        sb.Append(PackageSettings.ApplicationParameterSplitChar);
+                        sb.Append(Package.ApplicationParameterSplitChar);
                     }
 
                     sb.Append(p.Name);
@@ -729,7 +729,7 @@ namespace ZBrad.FabricLib.Utilities
 
             ServiceType svcTempl0 = null;
             // get servicetemplate info
-            if (appMan.ServiceTemplates != null && appMan.ServiceTemplates.Length > 0)
+            if (appMan.ServiceTemplates != null && appMan.ServiceTemplates.Count > 0)
             {
                 svcTempl0 = appMan.ServiceTemplates[0];
                 if (svcTempl0 is StatefulServiceType)
@@ -753,7 +753,7 @@ namespace ZBrad.FabricLib.Utilities
             }
 
             // next load ServiceManifest
-            if (appMan.ServiceManifestImport.Length != 1)
+            if (appMan.ServiceManifestImport.Count != 1)
             {
                 log.Error("Can only verify 1 service manifest");
                 return false;
